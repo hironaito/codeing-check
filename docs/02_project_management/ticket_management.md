@@ -38,10 +38,10 @@
 ### EP-1: プロジェクトセットアップ
 
 #### ST-1.1: 開発環境構築
-- [ ] TS-1.1.1: プロジェクトの初期化（Next.js + TypeScript）
-- [ ] TS-1.1.2: ESLint、Prettier、Stylelintの設定
-- [ ] TS-1.1.3: GitHubリポジトリのセットアップ
-- [ ] TS-1.1.4: 必要なパッケージのインストール（Recharts等）
+- [x] TS-1.1.1: プロジェクトの初期化（Next.js + TypeScript）
+- [x] TS-1.1.2: ESLint、Prettier、Stylelintの設定
+- [x] TS-1.1.3: GitHubリポジトリのセットアップ
+- [x] TS-1.1.4: 必要なパッケージのインストール（Recharts等）
 
 #### ST-1.2: プロジェクト構成の設定
 - [ ] TS-1.2.1: ディレクトリ構造の設定
