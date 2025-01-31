@@ -34,11 +34,14 @@ export const CHART_ANIMATION = {
 
 // グラフのツールチップ設定
 export const CHART_TOOLTIP_STYLE = {
-  backgroundColor: 'rgba(255, 255, 255, 0.98)',
-  border: '1px solid #e5e7eb',
+  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+  border: '1px solid rgba(229, 231, 235, 0.5)',
   borderRadius: '8px',
   padding: '12px 16px',
   boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+  outline: 'none',
+  maxWidth: '300px',
+  zIndex: 10,
 } as const;
 
 // グラフの軸設定

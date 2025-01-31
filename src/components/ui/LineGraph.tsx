@@ -66,22 +66,28 @@ export const LineGraph: FC<LineGraphProps> = ({
     return (
       <div
         style={CHART_TOOLTIP_STYLE}
-        className="shadow-lg"
+        className="shadow-lg backdrop-blur-sm transition-opacity duration-200 ease-in-out"
+        role="tooltip"
+        aria-live="polite"
       >
-        <p className="font-bold mb-2 text-gray-900">{`${label}年`}</p>
-        {payload.map((entry) => (
-          <div key={entry.name} className="flex items-center gap-2 py-1">
-            <div
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: entry.color }}
-            />
-            <p className="text-sm text-gray-600">
-              <span className="font-medium text-gray-900">{entry.name}</span>
-              <span className="mx-1">:</span>
-              <span>{tooltipFormatter(entry.value as number)}</span>
-            </p>
+        <div className="flex flex-col gap-2">
+          <p className="font-bold text-base text-gray-900 border-b border-gray-100 pb-2">{`${label}年`}</p>
+          <div className="space-y-2">
+            {payload.map((entry) => (
+              <div key={entry.name} className="flex items-center gap-3">
+                <div
+                  className="w-3 h-3 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: entry.color }}
+                  aria-hidden="true"
+                />
+                <div className="flex items-baseline gap-2">
+                  <span className="font-medium text-sm text-gray-900">{entry.name}</span>
+                  <span className="text-sm text-gray-600">{tooltipFormatter(entry.value as number)}</span>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
     );
   };
