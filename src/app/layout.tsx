@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { PopulationDataProvider } from '@/store/PopulationDataContext';
+import { PrefectureDataProvider } from '@/store/PrefectureDataContext';
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -13,11 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ja">
       <body className="antialiased">
-        <PopulationDataProvider>
-          {children}
-        </PopulationDataProvider>
+        <PrefectureDataProvider>
+          <PopulationDataProvider>
+            {children}
+          </PopulationDataProvider>
+        </PrefectureDataProvider>
       </body>
     </html>
   );
