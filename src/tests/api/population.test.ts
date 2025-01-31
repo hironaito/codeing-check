@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+
 import { fetchPopulationData } from '@/services/api/population';
 import { PopulationResponse } from '@/types/api/population';
 
@@ -26,29 +27,36 @@ const mockEnv = {
 };
 
 // グローバルなfetchのモック
-const mockFetch = vi.fn();
+const mockFetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 global.fetch = mockFetch;
 
 describe('fetchPopulationData', () => {
   beforeEach(() => {
     // 各テストの前にモックをリセット
-    mockFetch.mockReset();
+    jest.resetAllMocks();
     // 環境変数のモックを設定
-    vi.stubEnv('NEXT_PUBLIC_API_ENDPOINT', mockEnv.NEXT_PUBLIC_API_ENDPOINT);
-    vi.stubEnv('NEXT_PUBLIC_API_KEY', mockEnv.NEXT_PUBLIC_API_KEY);
+    const originalEnv = process.env;
+    process.env = {
+      ...originalEnv,
+      NEXT_PUBLIC_API_ENDPOINT: mockEnv.NEXT_PUBLIC_API_ENDPOINT,
+      NEXT_PUBLIC_API_KEY: mockEnv.NEXT_PUBLIC_API_KEY
+    };
   });
 
   afterEach(() => {
-    // 環境変数のモックをクリア
-    vi.unstubAllEnvs();
+    // 環境変数を元に戻す
+    process.env = { ...process.env };
   });
 
   it('正常系: 人口データを正しく取得できること', async () => {
     // fetchのモックを設定
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockPopulationResponse,
-    });
+    mockFetch.mockResolvedValueOnce(new Response(
+      JSON.stringify(mockPopulationResponse),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    ));
 
     const prefCode = 1;
     const result = await fetchPopulationData(prefCode);
@@ -70,10 +78,13 @@ describe('fetchPopulationData', () => {
 
   it('エラー系: APIキーが無効な場合にエラーがスローされること', async () => {
     // 401 Unauthorizedのレスポンスをモック
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      status: 401,
-    });
+    mockFetch.mockResolvedValueOnce(new Response(
+      'Unauthorized',
+      {
+        status: 401,
+        statusText: 'Unauthorized'
+      }
+    ));
 
     const prefCode = 1;
     await expect(fetchPopulationData(prefCode))
@@ -93,11 +104,16 @@ describe('fetchPopulationData', () => {
 
   it('エラー系: 環境変数が設定されていない場合にエラーがスローされること', async () => {
     // 環境変数をクリア
-    vi.unstubAllEnvs();
+    const originalEnv = process.env;
+    process.env = {
+      ...originalEnv,
+      NEXT_PUBLIC_API_ENDPOINT: '',
+      NEXT_PUBLIC_API_KEY: ''
+    };
 
     const prefCode = 1;
     await expect(fetchPopulationData(prefCode))
       .rejects
       .toThrow('API endpoint is not configured');
   });
-}); 
+});
