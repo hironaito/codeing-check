@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { apiClient } from './apiClient';
-import { API_ENDPOINTS, CACHE_CONFIG } from './constants';
-import { APIError } from '@/types/api/error';
+import { API_ENDPOINTS, API_CONFIG } from '@/constants/api';
 import type { Prefecture, PrefecturesResponse } from '@/types/api/prefecture';
 import type { ExtendedRequestConfig } from '@/types/api/request';
+import { handleAPIError } from '@/utils/error';
 
 // レスポンスのバリデーションスキーマ
 const prefectureSchema = z.object({
@@ -25,7 +25,7 @@ export const getPrefectures = async (): Promise<Prefecture[]> => {
   try {
     const config: ExtendedRequestConfig = {
       cache: {
-        ttl: CACHE_CONFIG.PREFECTURE_TTL,
+        ttl: API_CONFIG.CACHE.PREFECTURE_TTL,
       },
     };
 
@@ -33,7 +33,7 @@ export const getPrefectures = async (): Promise<Prefecture[]> => {
     console.log('API Response:', response);
     
     if (!response.data) {
-      throw new APIError('レスポンスデータが存在しません', 500);
+      throw new Error('レスポンスデータが存在しません');
     }
     
     // レスポンスのバリデーション
@@ -42,13 +42,6 @@ export const getPrefectures = async (): Promise<Prefecture[]> => {
     
     return validatedData.result;
   } catch (error) {
-    console.error('Prefecture API Error:', error);
-    if (error instanceof APIError) {
-      throw error;
-    }
-    if (error instanceof z.ZodError) {
-      throw new APIError('レスポンスの形式が不正です', 500);
-    }
-    throw new APIError('都道府県データの取得に失敗しました');
+    return handleAPIError(error, '都道府県データの取得に失敗しました');
   }
 }; 

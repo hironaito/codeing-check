@@ -1,5 +1,5 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
-import { API_ERROR_MESSAGES, CACHE_CONFIG } from './constants';
+import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
+import { API_ERROR_MESSAGES, API_CONFIG } from '@/constants/api';
 import { APIError, type ErrorResponse } from '@/types/api/error';
 import type {
   ExtendedRequestConfig,
@@ -11,7 +11,7 @@ import type {
 // APIクライアントの基本設定
 const baseURL = process.env.NEXT_PUBLIC_API_ENDPOINT;
 const apiKey = process.env.NEXT_PUBLIC_API_KEY;
-const timeout = Number(process.env.NEXT_PUBLIC_API_TIMEOUT);
+const timeout = Number(process.env.NEXT_PUBLIC_API_TIMEOUT) || API_CONFIG.TIMEOUT.DEFAULT;
 
 console.log('API Client Config:', {
   baseURL,
@@ -29,11 +29,11 @@ export const apiClient = axios.create({
 });
 
 // リトライ設定
-const MAX_RETRIES = Number(process.env.NEXT_PUBLIC_API_RETRY_COUNT) || 3;
-const RETRY_DELAY = Number(process.env.NEXT_PUBLIC_API_RETRY_DELAY) || 1000;
+const MAX_RETRIES = Number(process.env.NEXT_PUBLIC_API_RETRY_COUNT) || API_CONFIG.RETRY.MAX_COUNT;
+const RETRY_DELAY = Number(process.env.NEXT_PUBLIC_API_RETRY_DELAY) || API_CONFIG.RETRY.DELAY;
 
 // リトライ可能なステータスコード
-const RETRYABLE_STATUS_CODES = [408, 429, 500, 502, 503, 504];
+const RETRYABLE_STATUS_CODES: readonly number[] = API_CONFIG.RETRY.STATUS_CODES;
 
 // カスタムエラーの型定義
 interface CacheError extends AxiosError<ErrorResponse> {
@@ -48,7 +48,7 @@ export const clearCache = (): void => {
 const cacheStore = {
   get: (key: string): CacheEntry | undefined => {
     try {
-      const item = localStorage.getItem(CACHE_CONFIG.PREFIX + key);
+      const item = localStorage.getItem(API_CONFIG.CACHE.PREFIX + key);
       if (!item) return undefined;
 
       const cache: StorageCache = JSON.parse(item);
@@ -68,7 +68,7 @@ const cacheStore = {
         data: value.data,
         timestamp: value.timestamp,
       };
-      localStorage.setItem(CACHE_CONFIG.PREFIX + key, JSON.stringify(cache));
+      localStorage.setItem(API_CONFIG.CACHE.PREFIX + key, JSON.stringify(cache));
     } catch (error) {
       console.error('Cache write error:', error);
     }
@@ -77,7 +77,7 @@ const cacheStore = {
   clear: (): void => {
     try {
       Object.keys(localStorage)
-        .filter(key => key.startsWith(CACHE_CONFIG.PREFIX))
+        .filter(key => key.startsWith(API_CONFIG.CACHE.PREFIX))
         .forEach(key => localStorage.removeItem(key));
     } catch (error) {
       console.error('Cache clear error:', error);
@@ -122,7 +122,7 @@ const retryRequest = async (error: AxiosError): Promise<void> => {
 
 // リクエストインターセプター
 apiClient.interceptors.request.use(
-  async (config: ExtendedRequestConfig) => {
+  async (config: InternalAxiosRequestConfig) => {
     console.log('API Request:', {
       method: config.method,
       url: config.url,
@@ -131,10 +131,10 @@ apiClient.interceptors.request.use(
     });
 
     // キャッシュの確認（GETリクエストのみ）
-    if (config.method?.toLowerCase() === 'get' && config.cache !== false) {
+    if (config.method?.toLowerCase() === 'get' && (config as ExtendedRequestConfig).cache !== false) {
       const cacheKey = generateCacheKey(config);
       const cached = cacheStore.get(cacheKey);
-      const ttl = (config.cache as CacheConfig)?.ttl || CACHE_CONFIG.DEFAULT_TTL;
+      const ttl = ((config as ExtendedRequestConfig).cache as CacheConfig)?.ttl || API_CONFIG.CACHE.DEFAULT_TTL;
 
       if (cached && isCacheValid(cached, ttl)) {
         console.log('Cache Hit:', cacheKey);
@@ -148,7 +148,7 @@ apiClient.interceptors.request.use(
 
     // リクエストヘッダーの共通設定
     if (config.headers) {
-      config.headers.Accept = 'application/json';
+      config.headers['Accept'] = 'application/json';
       config.headers['Cache-Control'] = 'no-cache';
     }
 
