@@ -49,10 +49,12 @@ export default function Home() {
   };
 
   // 選択された都道府県の人口データを抽出
-  const selectedPopulationData = selectedPrefCodes.map(prefCode => ({
-    prefCode,
-    data: populationData?.result || { boundaryYear: 0, data: [] }
-  }));
+  const selectedPopulationData = selectedPrefCodes
+    .filter(prefCode => populationData.has(prefCode))
+    .map(prefCode => ({
+      prefCode,
+      data: populationData.get(prefCode)!.result
+    }));
 
   return (
     <main className="min-h-screen p-4 md:p-8 max-w-7xl mx-auto space-y-8">
