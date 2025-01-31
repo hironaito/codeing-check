@@ -2,17 +2,26 @@ import { useState, useCallback, useMemo } from 'react';
 import { fetchPopulationData } from '@/services/api/population';
 import { PopulationResponse, PopulationComposition } from '@/types/api/population';
 import { API_ERROR_MESSAGES } from '@/constants/api';
+import { cacheStore } from '@/utils/cache';
 
 interface UsePopulationDataReturn {
   data: PopulationResponse | null;
   isLoading: boolean;
   error: Error | null;
   fetchData: (prefCode: number) => Promise<void>;
+  clearCache: () => void;
   totalPopulation: PopulationComposition | null;
   youngPopulation: PopulationComposition | null;
   workingPopulation: PopulationComposition | null;
   elderlyPopulation: PopulationComposition | null;
 }
+
+/**
+ * キャッシュキーを生成
+ */
+const generateCacheKey = (prefCode: number): string => {
+  return `population_${prefCode}`;
+};
 
 /**
  * 人口データを取得・管理するカスタムフック
@@ -23,6 +32,14 @@ export const usePopulationData = (): UsePopulationDataReturn => {
   const [error, setError] = useState<Error | null>(null);
 
   /**
+   * キャッシュをクリア
+   */
+  const clearCache = useCallback(() => {
+    cacheStore.clear();
+    setData(null);
+  }, []);
+
+  /**
    * 人口データを取得する
    */
   const fetchData = useCallback(async (prefCode: number) => {
@@ -30,7 +47,23 @@ export const usePopulationData = (): UsePopulationDataReturn => {
     setError(null);
 
     try {
+      // キャッシュをチェック
+      const cacheKey = generateCacheKey(prefCode);
+      const cachedData = cacheStore.get<PopulationResponse>(cacheKey);
+
+      if (cachedData) {
+        console.log('Cache hit:', cacheKey);
+        setData(cachedData);
+        setIsLoading(false);
+        return;
+      }
+
+      // APIからデータを取得
+      console.log('Cache miss:', cacheKey);
       const response = await fetchPopulationData(prefCode);
+      
+      // キャッシュに保存
+      cacheStore.set(cacheKey, response);
       setData(response);
     } catch (err) {
       const errorMessage = err instanceof Error 
@@ -80,6 +113,7 @@ export const usePopulationData = (): UsePopulationDataReturn => {
     isLoading,
     error,
     fetchData,
+    clearCache,
     // 各人口区分のデータ
     totalPopulation,
     youngPopulation,

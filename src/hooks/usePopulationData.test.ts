@@ -2,6 +2,7 @@ import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { usePopulationData } from './usePopulationData';
 import { fetchPopulationData } from '@/services/api/population';
+import { cacheStore } from '@/utils/cache';
 
 // APIモックの設定
 vi.mock('@/services/api/population', () => ({
@@ -49,6 +50,7 @@ const mockPopulationData = {
 describe('usePopulationData', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    cacheStore.clear();
   });
 
   it('初期状態が正しいこと', () => {
@@ -128,5 +130,58 @@ describe('usePopulationData', () => {
     // ローディング終了を確認
     expect(result.current.isLoading).toBe(false);
     expect(result.current.data).toEqual(mockPopulationData);
+  });
+
+  it('キャッシュが正しく機能すること', async () => {
+    const mockFetch = vi.mocked(fetchPopulationData);
+    mockFetch.mockResolvedValueOnce(mockPopulationData);
+
+    const { result } = renderHook(() => usePopulationData());
+
+    // 1回目の呼び出し（キャッシュミス）
+    await act(async () => {
+      await result.current.fetchData(1);
+    });
+
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(result.current.data).toEqual(mockPopulationData);
+
+    // 2回目の呼び出し（キャッシュヒット）
+    await act(async () => {
+      await result.current.fetchData(1);
+    });
+
+    // APIが呼び出されていないことを確認
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(result.current.data).toEqual(mockPopulationData);
+  });
+
+  it('キャッシュクリアが正しく機能すること', async () => {
+    const mockFetch = vi.mocked(fetchPopulationData);
+    mockFetch.mockResolvedValue(mockPopulationData);
+
+    const { result } = renderHook(() => usePopulationData());
+
+    // データを取得してキャッシュに保存
+    await act(async () => {
+      await result.current.fetchData(1);
+    });
+
+    expect(result.current.data).toEqual(mockPopulationData);
+
+    // キャッシュをクリア
+    act(() => {
+      result.current.clearCache();
+    });
+
+    expect(result.current.data).toBeNull();
+
+    // 再度データを取得（キャッシュミス）
+    await act(async () => {
+      await result.current.fetchData(1);
+    });
+
+    // APIが再度呼び出されることを確認
+    expect(mockFetch).toHaveBeenCalledTimes(2);
   });
 }); 
