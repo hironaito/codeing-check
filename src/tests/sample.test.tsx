@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import { z } from 'zod';
 import axios from 'axios';
@@ -34,4 +34,4 @@ describe('SampleChart', () => {
     const { container } = render(<SampleChart />);
     expect(container).toBeDefined();
   });
-}); 
+});

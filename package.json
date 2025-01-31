@@ -10,8 +10,8 @@
     "lint:fix": "next lint --fix && stylelint '**/*.css' --fix",
     "format": "prettier --write .",
     "type-check": "tsc --noEmit",
-    "test": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
@@ -25,6 +25,10 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.7",
+    "@babel/preset-env": "^7.26.7",
+    "@babel/preset-react": "^7.26.3",
+    "@babel/preset-typescript": "^7.26.0",
     "@chromatic-com/storybook": "^3.2.4",
     "@eslint/eslintrc": "^3",
     "@storybook/addon-a11y": "^8.5.2",
@@ -38,12 +42,14 @@
     "@storybook/test": "^8.5.2",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
+    "@types/jest": "^29.5.14",
     "@types/node": "^20",
+    "@types/node-fetch": "^2.6.12",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@typescript-eslint/eslint-plugin": "^8.22.0",
     "@typescript-eslint/parser": "^8.22.0",
-    "@vitejs/plugin-react": "^4.3.4",
+    "babel-jest": "^29.7.0",
     "eslint": "^9",
     "eslint-config-next": "15.1.6",
     "eslint-config-prettier": "^10.0.1",
@@ -51,15 +57,18 @@
     "eslint-plugin-prettier": "^5.2.3",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-storybook": "^0.11.2",
-    "jsdom": "^26.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "lighthouse": "^12.3.0",
+    "node-fetch": "^2.7.0",
     "postcss": "^8",
     "storybook": "^8.5.2",
     "stylelint": "^16.14.1",
     "stylelint-config-standard": "^37.0.0",
     "stylelint-config-tailwindcss": "^0.0.7",
     "tailwindcss": "^3.4.1",
+    "ts-jest": "^29.2.5",
     "typescript": "^5",
-    "vitest": "^3.0.4"
+    "whatwg-fetch": "^3.6.20"
   }
 }

@@ -1,12 +1,12 @@
 import { renderHook, act } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { usePopulationData } from './usePopulationData';
 import { fetchPopulationData } from '@/services/api/population';
 import { cacheStore } from '@/utils/cache';
 
 // APIモックの設定
-vi.mock('@/services/api/population', () => ({
-  fetchPopulationData: vi.fn(),
+jest.mock('@/services/api/population', () => ({
+  fetchPopulationData: jest.fn()
 }));
 
 // モックデータ
@@ -49,7 +49,7 @@ const mockPopulationData = {
 
 describe('usePopulationData', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
     cacheStore.clear();
   });
 
@@ -66,7 +66,7 @@ describe('usePopulationData', () => {
   });
 
   it('データ取得が成功した場合、正しく状態が更新されること', async () => {
-    const mockFetch = vi.mocked(fetchPopulationData);
+    const mockFetch = jest.mocked(fetchPopulationData);
     mockFetch.mockResolvedValueOnce(mockPopulationData);
 
     const { result } = renderHook(() => usePopulationData());
@@ -88,7 +88,7 @@ describe('usePopulationData', () => {
 
   it('データ取得が失敗した場合、エラー状態が設定されること', async () => {
     const mockError = new Error('API Error');
-    const mockFetch = vi.mocked(fetchPopulationData);
+    const mockFetch = jest.mocked(fetchPopulationData);
     mockFetch.mockRejectedValueOnce(mockError);
 
     const { result } = renderHook(() => usePopulationData());
@@ -107,7 +107,7 @@ describe('usePopulationData', () => {
   });
 
   it('ローディング状態が正しく制御されること', async () => {
-    const mockFetch = vi.mocked(fetchPopulationData);
+    const mockFetch = jest.mocked(fetchPopulationData);
     mockFetch.mockImplementationOnce(
       () => new Promise(resolve => setTimeout(() => resolve(mockPopulationData), 100))
     );
@@ -133,7 +133,7 @@ describe('usePopulationData', () => {
   });
 
   it('キャッシュが正しく機能すること', async () => {
-    const mockFetch = vi.mocked(fetchPopulationData);
+    const mockFetch = jest.mocked(fetchPopulationData);
     mockFetch.mockResolvedValueOnce(mockPopulationData);
 
     const { result } = renderHook(() => usePopulationData());
@@ -157,7 +157,7 @@ describe('usePopulationData', () => {
   });
 
   it('キャッシュクリアが正しく機能すること', async () => {
-    const mockFetch = vi.mocked(fetchPopulationData);
+    const mockFetch = jest.mocked(fetchPopulationData);
     mockFetch.mockResolvedValue(mockPopulationData);
 
     const { result } = renderHook(() => usePopulationData());
@@ -184,4 +184,4 @@ describe('usePopulationData', () => {
     // APIが再度呼び出されることを確認
     expect(mockFetch).toHaveBeenCalledTimes(2);
   });
-}); 
+});
