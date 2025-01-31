@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, useContext, useReducer, ReactNode, useCallback } from 'react';
 import { Prefecture } from '@/types/api/prefecture';
 import { fetchPrefectures } from '@/services/api/prefecture';

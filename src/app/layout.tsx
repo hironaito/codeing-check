@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { PopulationDataProvider } from '@/store/PopulationDataContext';
 import { PrefectureDataProvider } from '@/store/PrefectureDataContext';
+import { ErrorStateProvider } from '@/store/ErrorStateContext';
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,11 +17,13 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className="antialiased">
-        <PrefectureDataProvider>
-          <PopulationDataProvider>
-            {children}
-          </PopulationDataProvider>
-        </PrefectureDataProvider>
+        <ErrorStateProvider>
+          <PrefectureDataProvider>
+            <PopulationDataProvider>
+              {children}
+            </PopulationDataProvider>
+          </PrefectureDataProvider>
+        </ErrorStateProvider>
       </body>
     </html>
   );

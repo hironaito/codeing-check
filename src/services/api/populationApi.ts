@@ -41,7 +41,7 @@ export const getPopulation = async (prefCode: number): Promise<PopulationRespons
       },
     };
 
-    const response = await apiClient.get<PopulationResponse>(API_ENDPOINTS.POPULATION, config);
+    const response = await apiClient.get<PopulationResponse>(API_ENDPOINTS.POPULATION.COMPOSITION, config);
     console.log('Population API Response:', response);
     
     if (!response.data) {
@@ -56,4 +56,4 @@ export const getPopulation = async (prefCode: number): Promise<PopulationRespons
   } catch (error) {
     return handleAPIError(error, '人口データの取得に失敗しました');
   }
-}; 
+};

@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, useContext, useReducer, ReactNode, useCallback } from 'react';
 import { PopulationResponse, PopulationComposition } from '@/types/api/population';
 import { fetchPopulationData } from '@/services/api/population';
