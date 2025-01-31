@@ -50,10 +50,10 @@
 - [x] TS-1.2.4: グローバルスタイルの設定
 
 #### ST-1.3: Storybook設定
-- [ ] TS-1.3.1: Storybookのインストールと初期設定
-- [ ] TS-1.3.2: StorybookのTypeScript設定
-- [ ] TS-1.3.3: デコレーターとアドオンの設定（a11y, controls, actions等）
-- [ ] TS-1.3.4: グローバルスタイルとテーマの設定
+- [x] TS-1.3.1: Storybookのインストールと初期設定
+- [x] TS-1.3.2: StorybookのTypeScript設定
+- [x] TS-1.3.3: デコレーターとアドオンの設定（a11y, controls, actions等）
+- [x] TS-1.3.4: グローバルスタイルとテーマの設定
 
 ### EP-2: 都道府県選択機能
 
