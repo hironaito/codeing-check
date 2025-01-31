@@ -25,6 +25,11 @@ const preview: Preview = {
           value: '#1a1a1a',
         },
       ],
+      grid: {
+        cellSize: 20,
+        opacity: 0.2,
+        cellAmount: 5,
+      },
     },
     viewport: {
       viewports: {
@@ -60,6 +65,13 @@ const preview: Preview = {
           },
         ],
       },
+    },
+    darkMode: {
+      current: 'light',
+      stylePreview: true,
+      darkClass: 'dark',
+      lightClass: 'light',
+      classTarget: 'html',
     },
   },
 };
