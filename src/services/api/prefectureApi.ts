@@ -2,7 +2,20 @@ import { z } from 'zod';
 import { apiClient } from './apiClient';
 import { API_ENDPOINTS } from './constants';
 import { APIError } from '@/types/api/error';
+import type { AxiosRequestConfig } from 'axios';
 import type { Prefecture, PrefecturesResponse } from '@/types/api/prefecture';
+
+// キャッシュの設定
+const PREFECTURE_CACHE_TTL = 30 * 60 * 1000; // 30分
+
+// 拡張されたリクエスト設定の型
+interface CacheConfig {
+  ttl: number;
+}
+
+interface ExtendedRequestConfig extends AxiosRequestConfig {
+  cache?: boolean | CacheConfig;
+}
 
 // レスポンスのバリデーションスキーマ
 const prefectureSchema = z.object({
@@ -22,7 +35,13 @@ const prefecturesResponseSchema = z.object({
  */
 export const getPrefectures = async (): Promise<Prefecture[]> => {
   try {
-    const response = await apiClient.get<PrefecturesResponse>(API_ENDPOINTS.PREFECTURES);
+    const config: ExtendedRequestConfig = {
+      cache: {
+        ttl: PREFECTURE_CACHE_TTL,
+      },
+    };
+
+    const response = await apiClient.get<PrefecturesResponse>(API_ENDPOINTS.PREFECTURES, config);
     console.log('API Response:', response);
     
     if (!response.data) {
