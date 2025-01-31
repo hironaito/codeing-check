@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { PrefectureList } from './PrefectureList';
+import { usePrefectureSelection } from '@/hooks/usePrefectureSelection';
 
 const meta = {
   title: 'Features/Prefecture/PrefectureList',
@@ -28,23 +29,23 @@ const mockPrefectures = [
 ];
 
 const PrefectureListStory = () => {
-  const [selectedPrefCodes, setSelectedPrefCodes] = useState<number[]>([]);
-
-  const handlePrefectureChange = (prefCode: number, checked: boolean) => {
-    setSelectedPrefCodes((prev) =>
-      checked
-        ? [...prev, prefCode]
-        : prev.filter((code) => code !== prefCode)
-    );
-    console.log(`Prefecture ${prefCode} ${checked ? 'selected' : 'unselected'}`);
-  };
+  const {
+    selectedPrefCodes,
+    toggleSelection,
+    selectAll,
+    unselectAll,
+  } = usePrefectureSelection();
 
   return (
-    <PrefectureList
-      prefectures={mockPrefectures}
-      selectedPrefCodes={selectedPrefCodes}
-      onPrefectureChange={handlePrefectureChange}
-    />
+    <div className="w-[800px]">
+      <PrefectureList
+        prefectures={mockPrefectures}
+        selectedPrefCodes={selectedPrefCodes}
+        onPrefectureChange={toggleSelection}
+        onSelectAll={selectAll}
+        onUnselectAll={unselectAll}
+      />
+    </div>
   );
 };
 
@@ -54,23 +55,23 @@ export const Default = {
 
 // 選択済み状態のストーリー
 const SelectedPrefectureListStory = () => {
-  const [selectedPrefCodes, setSelectedPrefCodes] = useState<number[]>([1, 2, 3]);
-
-  const handlePrefectureChange = (prefCode: number, checked: boolean) => {
-    setSelectedPrefCodes((prev) =>
-      checked
-        ? [...prev, prefCode]
-        : prev.filter((code) => code !== prefCode)
-    );
-    console.log(`Prefecture ${prefCode} ${checked ? 'selected' : 'unselected'}`);
-  };
+  const {
+    selectedPrefCodes,
+    toggleSelection,
+    selectAll,
+    unselectAll,
+  } = usePrefectureSelection([1, 2, 3]);
 
   return (
-    <PrefectureList
-      prefectures={mockPrefectures}
-      selectedPrefCodes={selectedPrefCodes}
-      onPrefectureChange={handlePrefectureChange}
-    />
+    <div className="w-[800px]">
+      <PrefectureList
+        prefectures={mockPrefectures}
+        selectedPrefCodes={selectedPrefCodes}
+        onPrefectureChange={toggleSelection}
+        onSelectAll={selectAll}
+        onUnselectAll={unselectAll}
+      />
+    </div>
   );
 };
 
