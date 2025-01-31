@@ -19,6 +19,12 @@ const mockPopulationResponse: PopulationResponse = {
   },
 };
 
+// 環境変数のモック
+const mockEnv = {
+  NEXT_PUBLIC_API_ENDPOINT: 'https://yumemi-frontend-engineer-codecheck-api.vercel.app',
+  NEXT_PUBLIC_API_KEY: 'dummy-api-key',
+};
+
 // グローバルなfetchのモック
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
@@ -27,6 +33,14 @@ describe('fetchPopulationData', () => {
   beforeEach(() => {
     // 各テストの前にモックをリセット
     mockFetch.mockReset();
+    // 環境変数のモックを設定
+    vi.stubEnv('NEXT_PUBLIC_API_ENDPOINT', mockEnv.NEXT_PUBLIC_API_ENDPOINT);
+    vi.stubEnv('NEXT_PUBLIC_API_KEY', mockEnv.NEXT_PUBLIC_API_KEY);
+  });
+
+  afterEach(() => {
+    // 環境変数のモックをクリア
+    vi.unstubAllEnvs();
   });
 
   it('正常系: 人口データを正しく取得できること', async () => {
@@ -37,17 +51,15 @@ describe('fetchPopulationData', () => {
     });
 
     const prefCode = 1;
-    const apiKey = 'dummy-api-key';
-
-    const result = await fetchPopulationData(prefCode, apiKey);
+    const result = await fetchPopulationData(prefCode);
 
     // APIが正しく呼び出されたことを確認
     expect(mockFetch).toHaveBeenCalledTimes(1);
     expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('/population/composition/perYear?prefCode=1'),
+      expect.stringContaining('/api/v1/population/composition/perYear?prefCode=1'),
       expect.objectContaining({
         headers: {
-          'X-API-KEY': apiKey,
+          'X-API-KEY': mockEnv.NEXT_PUBLIC_API_KEY,
         },
       })
     );
@@ -64,9 +76,7 @@ describe('fetchPopulationData', () => {
     });
 
     const prefCode = 1;
-    const invalidApiKey = 'invalid-api-key';
-
-    await expect(fetchPopulationData(prefCode, invalidApiKey))
+    await expect(fetchPopulationData(prefCode))
       .rejects
       .toThrow('API request failed with status 401');
   });
@@ -76,10 +86,18 @@ describe('fetchPopulationData', () => {
     mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
     const prefCode = 1;
-    const apiKey = 'dummy-api-key';
-
-    await expect(fetchPopulationData(prefCode, apiKey))
+    await expect(fetchPopulationData(prefCode))
       .rejects
       .toThrow('Failed to fetch population data: Network error');
+  });
+
+  it('エラー系: 環境変数が設定されていない場合にエラーがスローされること', async () => {
+    // 環境変数をクリア
+    vi.unstubAllEnvs();
+
+    const prefCode = 1;
+    await expect(fetchPopulationData(prefCode))
+      .rejects
+      .toThrow('API endpoint is not configured');
   });
 }); 

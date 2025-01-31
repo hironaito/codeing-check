@@ -1,23 +1,32 @@
 import { PopulationResponse } from '@/types/api/population';
+import { API_ENDPOINTS } from '@/constants/api';
 
 /**
- * RESAS APIのベースURL
+ * APIの設定を取得・検証する
  */
-const RESAS_API_BASE_URL = 'https://opendata.resas-portal.go.jp/api/v1';
+const getAPIConfig = () => {
+  const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT;
+  const apiKey = process.env.NEXT_PUBLIC_API_KEY;
 
-/**
- * 人口構成APIのエンドポイント
- */
-const POPULATION_ENDPOINT = '/population/composition/perYear';
+  if (!apiEndpoint) {
+    throw new Error('API endpoint is not configured');
+  }
+
+  if (!apiKey) {
+    throw new Error('API key is not configured');
+  }
+
+  return { apiEndpoint, apiKey };
+};
 
 /**
  * 人口構成APIのインターフェース
  */
 export const fetchPopulationData = async (
-  prefCode: number,
-  apiKey: string
+  prefCode: number
 ): Promise<PopulationResponse> => {
-  const url = new URL(`${RESAS_API_BASE_URL}${POPULATION_ENDPOINT}`);
+  const { apiEndpoint, apiKey } = getAPIConfig();
+  const url = new URL(`${apiEndpoint}${API_ENDPOINTS.POPULATION.COMPOSITION}`);
   url.searchParams.append('prefCode', prefCode.toString());
   url.searchParams.append('cityCode', '-');
 
