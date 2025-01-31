@@ -1,21 +1,9 @@
 import { z } from 'zod';
 import { apiClient } from './apiClient';
-import { API_ENDPOINTS } from './constants';
+import { API_ENDPOINTS, CACHE_CONFIG } from './constants';
 import { APIError } from '@/types/api/error';
-import type { AxiosRequestConfig } from 'axios';
 import type { PopulationResponse } from '@/types/api/population';
-
-// キャッシュの設定
-const POPULATION_CACHE_TTL = 60 * 60 * 1000; // 1時間
-
-// 拡張されたリクエスト設定の型
-interface CacheConfig {
-  ttl: number;
-}
-
-interface ExtendedRequestConfig extends AxiosRequestConfig {
-  cache?: boolean | CacheConfig;
-}
+import type { ExtendedRequestConfig } from '@/types/api/request';
 
 // レスポンスのバリデーションスキーマ
 const populationDataSchema = z.object({
@@ -49,7 +37,7 @@ export const getPopulation = async (prefCode: number): Promise<PopulationRespons
         prefCode,
       },
       cache: {
-        ttl: POPULATION_CACHE_TTL,
+        ttl: CACHE_CONFIG.POPULATION_TTL,
       },
     };
 
