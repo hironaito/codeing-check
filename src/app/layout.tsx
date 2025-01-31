@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { PopulationDataProvider } from '@/store/PopulationDataContext';
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        {children}
+        <PopulationDataProvider>
+          {children}
+        </PopulationDataProvider>
       </body>
     </html>
   );
