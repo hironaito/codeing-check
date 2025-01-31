@@ -14,6 +14,7 @@ interface PrefectureListProps {
   onPrefectureChange: (prefCode: number, checked: boolean) => void;
   onSelectAll?: () => void;
   onUnselectAll?: () => void;
+  isLoading?: boolean;
 }
 
 export const PrefectureList: FC<PrefectureListProps> = ({
@@ -22,9 +23,35 @@ export const PrefectureList: FC<PrefectureListProps> = ({
   onPrefectureChange,
   onSelectAll,
   onUnselectAll,
+  isLoading = false,
 }) => {
   const selectedCount = selectedPrefCodes.length;
   const totalCount = prefectures.length;
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between px-4 py-2 bg-gray-50 rounded-lg animate-pulse">
+          <div className="h-4 w-24 bg-gray-200 rounded" />
+          <div className="space-x-2">
+            <div className="inline-block h-8 w-20 bg-gray-200 rounded" />
+            <div className="inline-block h-8 w-20 bg-gray-200 rounded" />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
+          {[...Array(47)].map((_, index) => (
+            <div
+              key={index}
+              className="flex items-center space-x-2 p-2 bg-gray-50 rounded-md animate-pulse"
+            >
+              <div className="h-4 w-4 bg-gray-200 rounded" />
+              <div className="h-4 w-20 bg-gray-200 rounded" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

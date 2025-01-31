@@ -77,4 +77,18 @@ const SelectedPrefectureListStory = () => {
 
 export const WithSelectedPrefectures = {
   render: () => <SelectedPrefectureListStory />
+};
+
+// ローディング状態のストーリー
+export const Loading = {
+  render: () => (
+    <div className="w-[800px]">
+      <PrefectureList
+        prefectures={[]}
+        selectedPrefCodes={[]}
+        onPrefectureChange={() => {}}
+        isLoading={true}
+      />
+    </div>
+  )
 }; 
