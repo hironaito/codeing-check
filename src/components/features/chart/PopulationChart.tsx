@@ -21,35 +21,25 @@ export const PopulationChart: FC<PopulationChartProps> = ({
   className = '',
 }) => {
   const chartData = useMemo(() => {
-    // 総人口データのみを使用
-    const totalPopulationData = populationData.map(p => ({
-      prefCode: p.prefCode,
-      data: p.data.data.find(d => d.label === '総人口')?.data ?? []
-    }));
+    // 全ての年のユニークなリストを作成
+    const years = new Set<number>();
+    populationData.forEach(({ data }) => {
+      data.data[0].data.forEach(({ year }) => years.add(year));
+    });
 
-    // 年度のユニークな配列を作成
-    const years = Array.from(
-      new Set(
-        totalPopulationData.flatMap(p => p.data.map(d => d.year))
-      )
-    ).sort((a, b) => a - b);
-
-    // 各年度ごとのデータを作成
-    return years.map((year) => {
-      const baseData: DataPoint = {
+    // 年ごとのデータを作成
+    return Array.from(years).sort().map(year => {
+      const yearData: { [key: string]: number } & { year: number; value: number } = {
         year,
-        value: 0,
+        value: 0
       };
+      
+      populationData.forEach(({ prefCode, data }) => {
+        const totalPopulation = data.data[0].data.find(d => d.year === year);
+        yearData[`value${prefCode}`] = totalPopulation?.value ?? 0;
+      });
 
-      const yearData = totalPopulationData.reduce((acc, p) => {
-        const value = p.data.find((d) => d.year === year)?.value ?? 0;
-        return {
-          ...acc,
-          [`value${p.prefCode}`]: value,
-        };
-      }, baseData);
-
-      return yearData;
+      return yearData as DataPoint;
     });
   }, [populationData]);
 

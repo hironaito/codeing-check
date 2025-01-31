@@ -38,7 +38,7 @@ export const PrefectureList: FC<PrefectureListProps> = ({
             <div className="inline-block h-8 w-20 bg-gray-200 rounded" />
           </div>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2">
           {[...Array(47)].map((_, index) => (
             <div
               key={index}
@@ -60,7 +60,7 @@ export const PrefectureList: FC<PrefectureListProps> = ({
         <div className="text-sm text-gray-600">
           選択中: {selectedCount} / {totalCount}
         </div>
-        <div className="space-x-2">
+        <div className="flex items-center space-x-2">
           <button
             onClick={onSelectAll}
             className="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-300 disabled:hover:text-gray-700"
@@ -79,7 +79,7 @@ export const PrefectureList: FC<PrefectureListProps> = ({
       </div>
 
       {/* 都道府県リスト */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-12 gap-1 p-1">
         {prefectures.map((prefecture) => (
           <PrefectureSelector
             key={prefecture.prefCode}

@@ -1,15 +1,17 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 import { fetchPopulationData } from '@/services/api/population';
-import { PopulationResponse, PopulationComposition } from '@/types/api/population';
+import { PopulationResponse } from '@/types/api/population';
 import { API_ERROR_MESSAGES } from '@/constants/api';
 import { cacheStore } from '@/utils/cache';
 
-interface UsePopulationDataReturn {
+export interface UsePopulationDataReturn {
   data: Map<number, PopulationResponse>;
   isLoading: boolean;
   error: Error | null;
   fetchData: (prefCode: number) => Promise<void>;
   clearCache: () => void;
+  fetchTimeMs: number | null;
+  source: 'cache' | 'api' | null;
 }
 
 /**
@@ -26,6 +28,8 @@ export const usePopulationData = (): UsePopulationDataReturn => {
   const [data, setData] = useState<Map<number, PopulationResponse>>(new Map());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [fetchTimeMs, setFetchTimeMs] = useState<number | null>(null);
+  const [source, setSource] = useState<'cache' | 'api' | null>(null);
 
   /**
    * キャッシュをクリア
@@ -33,19 +37,21 @@ export const usePopulationData = (): UsePopulationDataReturn => {
   const clearCache = useCallback(() => {
     cacheStore.clear();
     setData(new Map());
+    setFetchTimeMs(null);
+    setSource(null);
   }, []);
 
   /**
    * 人口データを取得する
    */
   const fetchData = useCallback(async (prefCode: number) => {
-    // すでにデータがある場合はスキップ
     if (data.has(prefCode)) {
       return;
     }
 
     setIsLoading(true);
     setError(null);
+    const start = performance.now();
 
     try {
       // キャッシュをチェック
@@ -54,7 +60,16 @@ export const usePopulationData = (): UsePopulationDataReturn => {
 
       if (cachedData) {
         console.log('Cache hit:', cacheKey);
-        setData(prev => new Map(prev).set(prefCode, cachedData));
+        const cacheStart = performance.now();
+        await Promise.resolve(); // 非同期処理を挟んで正確な時間を計測
+        setData(prev => {
+          const newData = new Map(prev);
+          newData.set(prefCode, cachedData);
+          return newData;
+        });
+        const end = performance.now();
+        setFetchTimeMs(Math.round(end - cacheStart));
+        setSource('cache');
         setIsLoading(false);
         return;
       }
@@ -65,7 +80,14 @@ export const usePopulationData = (): UsePopulationDataReturn => {
       
       // キャッシュに保存
       cacheStore.set(cacheKey, response);
-      setData(prev => new Map(prev).set(prefCode, response));
+      setData(prev => {
+        const newData = new Map(prev);
+        newData.set(prefCode, response);
+        return newData;
+      });
+      const end = performance.now();
+      setFetchTimeMs(Math.round(end - start));
+      setSource('api');
     } catch (err) {
       const errorMessage = err instanceof Error 
         ? err.message 
@@ -74,7 +96,7 @@ export const usePopulationData = (): UsePopulationDataReturn => {
     } finally {
       setIsLoading(false);
     }
-  }, [data]);
+  }, []);
 
   return {
     data,
@@ -82,5 +104,7 @@ export const usePopulationData = (): UsePopulationDataReturn => {
     error,
     fetchData,
     clearCache,
+    fetchTimeMs,
+    source,
   };
 }; 

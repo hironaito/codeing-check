@@ -25,6 +25,10 @@ export default function Home() {
     isLoading: isLoadingPopulation,
     error: populationError,
     fetchData: fetchPopulation,
+    clearCache,
+    lastFetchTime,
+    fetchTimeMs,
+    source,
   } = usePopulationData();
 
   // 都道府県選択の状態管理
@@ -51,10 +55,23 @@ export default function Home() {
   // 選択された都道府県の人口データを抽出
   const selectedPopulationData = selectedPrefCodes
     .filter(prefCode => populationData.has(prefCode))
-    .map(prefCode => ({
-      prefCode,
-      data: populationData.get(prefCode)!.result
-    }));
+    .map(prefCode => {
+      const data = populationData.get(prefCode);
+      if (!data) return null;
+
+      // 総人口のデータのみを使用
+      const totalPopulation = data.result.data.find(d => d.label === '総人口');
+      if (!totalPopulation) return null;
+
+      return {
+        prefCode,
+        data: {
+          boundaryYear: data.result.boundaryYear,
+          data: [totalPopulation],
+        }
+      };
+    })
+    .filter((data): data is NonNullable<typeof data> => data !== null);
 
   return (
     <main className="min-h-screen p-4 md:p-8 max-w-7xl mx-auto space-y-8">
@@ -64,9 +81,24 @@ export default function Home() {
       {/* ヘッダー */}
       <header className="space-y-2">
         <h1 className="text-2xl font-bold text-gray-900">都道府県別人口推移グラフ</h1>
-        <p className="text-sm text-gray-600">
-          都道府県を選択すると、人口推移グラフが表示されます。複数の都道府県を選択して比較することができます。
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-600">
+            都道府県を選択すると、人口推移グラフが表示されます。複数の都道府県を選択して比較することができます。
+          </p>
+          <div className="flex items-center space-x-2">
+            {fetchTimeMs !== null && (
+              <span className="text-xs text-gray-500">
+                取得時間: {fetchTimeMs}ms {source === 'cache' ? '(キャッシュ)' : '(API)'}
+              </span>
+            )}
+            <button
+              onClick={clearCache}
+              className="px-3 py-1 text-xs text-gray-700 bg-white border border-gray-300 rounded hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-colors"
+            >
+              キャッシュクリア
+            </button>
+          </div>
+        </div>
       </header>
 
       {/* メインコンテンツ */}
