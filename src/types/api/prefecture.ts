@@ -6,6 +6,6 @@ export interface Prefecture {
 
 // 都道府県一覧のレスポンス型
 export interface PrefecturesResponse {
-  message: null;
+  message: string | null;
   result: Prefecture[];
 } 
