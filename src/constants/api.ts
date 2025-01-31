@@ -1,3 +1,6 @@
+/**
+ * API設定
+ */
 export const API_CONFIG = {
   TIMEOUT: {
     DEFAULT: 5000,
@@ -14,11 +17,24 @@ export const API_CONFIG = {
     PREFECTURE_TTL: 1000 * 60 * 60 * 24, // 24時間
     POPULATION_TTL: 1000 * 60 * 60, // 1時間
   },
+  version: '/api/v1',
+  endpoints: {
+    population: {
+      composition: {
+        perYear: '/population/composition/perYear',
+      },
+    },
+  },
 } as const;
 
+/**
+ * APIエンドポイント
+ */
 export const API_ENDPOINTS = {
   PREFECTURES: '/api/v1/prefectures',
-  POPULATION: '/api/v1/population/composition/perYear',
+  POPULATION: {
+    COMPOSITION: `${API_CONFIG.version}${API_CONFIG.endpoints.population.composition.perYear}`,
+  },
 } as const;
 
 export const API_ERROR_MESSAGES = {

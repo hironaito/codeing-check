@@ -1,63 +1,82 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getPrefectures } from '@/services/api/prefectureApi';
-import { getPopulation } from '@/services/api/populationApi';
-import { clearCache } from '@/services/api/apiClient';
+import { useEffect } from 'react';
+import { useState } from 'react';
+import { usePrefectureData } from '@/hooks/usePrefectureData';
+import { usePopulationData } from '@/hooks/usePopulationData';
 import type { Prefecture } from '@/types/api/prefecture';
-import type { PopulationResponse } from '@/types/api/population';
 
 export default function TestPage() {
-  const [prefectures, setPrefectures] = useState<Prefecture[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [selectedPref, setSelectedPref] = useState<Prefecture | null>(null);
-  const [populationData, setPopulationData] = useState<PopulationResponse['result'] | null>(null);
+  const [prefFetchTime, setPrefFetchTime] = useState<number | null>(null);
+  const [popFetchTime, setPopFetchTime] = useState<number | null>(null);
+  const [dataSource, setDataSource] = useState<'cache' | 'api' | null>(null);
 
-  const fetchPrefectures = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const start = performance.now();
-      const data = await getPrefectures();
-      const end = performance.now();
-      console.log(`取得時間: ${end - start}ms`);
-      setPrefectures(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '予期せぬエラーが発生しました');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // 都道府県一覧取得フックを使用
+  const {
+    data: prefectures,
+    isLoading: isLoadingPrefectures,
+    error: prefectureError,
+    fetchData: fetchPrefectureList,
+    clearCache: clearPrefectureCache,
+    source: prefSource,
+  } = usePrefectureData();
 
-  const fetchPopulation = async (prefecture: Prefecture) => {
+  // 人口データ取得フックを使用
+  const {
+    data: populationData,
+    isLoading: isLoadingPopulation,
+    error: populationError,
+    fetchData: fetchPopulation,
+    clearCache: clearPopulationCache,
+  } = usePopulationData();
+
+  const handlePrefectureSelect = async (prefecture: Prefecture) => {
     try {
-      setLoading(true);
-      setError(null);
       setSelectedPref(prefecture);
       const start = performance.now();
-      const data = await getPopulation(prefecture.prefCode);
+      await fetchPopulation(prefecture.prefCode);
       const end = performance.now();
-      console.log(`人口データ取得時間: ${end - start}ms`);
-      setPopulationData(data);
+      setPopFetchTime(Math.round(end - start));
     } catch (err) {
-      setError(err instanceof Error ? err.message : '予期せぬエラーが発生しました');
-      setPopulationData(null);
-    } finally {
-      setLoading(false);
+      console.error('人口データの取得に失敗しました:', err);
     }
   };
 
   const handleClearCache = () => {
-    clearCache();
-    setPopulationData(null);
-    setSelectedPref(null);
-    console.log('キャッシュをクリアしました');
+    try {
+      clearPrefectureCache();
+      clearPopulationCache();
+      setSelectedPref(null);
+      setPrefFetchTime(null);
+      setPopFetchTime(null);
+      setDataSource(null);
+      console.log('全てのキャッシュをクリアしました');
+    } catch (err) {
+      console.error('キャッシュのクリアに失敗しました:', err);
+    }
+  };
+
+  const handleFetchPrefectures = async () => {
+    try {
+      const start = performance.now();
+      const source = await fetchPrefectureList();
+      const end = performance.now();
+      setPrefFetchTime(Math.round(end - start));
+      setDataSource(source as 'cache' | 'api');
+    } catch (err) {
+      console.error('都道府県一覧の取得に失敗しました:', err);
+    }
   };
 
   useEffect(() => {
-    fetchPrefectures();
+    handleFetchPrefectures();
   }, []);
+
+  // エラー状態の統合
+  const displayError = prefectureError?.message || populationError?.message || null;
+  // ローディング状態の統合
+  const isLoadingAny = isLoadingPrefectures || isLoadingPopulation;
 
   return (
     <div className="p-4">
@@ -65,11 +84,11 @@ export default function TestPage() {
       
       <div className="flex gap-4 mb-4">
         <button
-          onClick={fetchPrefectures}
+          onClick={handleFetchPrefectures}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
-          disabled={loading}
+          disabled={isLoadingAny}
         >
-          {loading ? '読み込み中...' : '再取得'}
+          {isLoadingAny ? '読み込み中...' : '再取得'}
         </button>
 
         <button
@@ -80,9 +99,24 @@ export default function TestPage() {
         </button>
       </div>
 
-      {error && (
+      {/* 取得時間の表示 */}
+      <div className="mb-4 space-y-2">
+        {prefFetchTime !== null && (
+          <p className="text-sm text-gray-600">
+            都道府県一覧取得時間: {prefFetchTime}ms
+            {dataSource && ` (${dataSource === 'cache' ? 'キャッシュ' : 'API'}から取得)`}
+          </p>
+        )}
+        {popFetchTime !== null && (
+          <p className="text-sm text-gray-600">
+            人口データ取得時間: {popFetchTime}ms
+          </p>
+        )}
+      </div>
+
+      {displayError && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          <p>{error}</p>
+          <p>{displayError}</p>
         </div>
       )}
 
@@ -94,13 +128,13 @@ export default function TestPage() {
               {prefectures.map((pref) => (
                 <button
                   key={pref.prefCode}
-                  onClick={() => fetchPopulation(pref)}
+                  onClick={() => handlePrefectureSelect(pref)}
                   className={`p-4 rounded shadow hover:shadow-md transition-all ${
                     selectedPref?.prefCode === pref.prefCode
                       ? 'bg-blue-100 border-blue-500'
                       : 'bg-white border-gray-200'
                   } border`}
-                  disabled={loading}
+                  disabled={isLoadingAny}
                 >
                   <p className="font-bold">{pref.prefName}</p>
                   <p className="text-gray-600 text-sm">コード: {pref.prefCode}</p>
@@ -115,9 +149,9 @@ export default function TestPage() {
           {selectedPref && populationData && (
             <div className="bg-white p-4 rounded shadow">
               <h3 className="font-bold text-lg mb-2">{selectedPref.prefName}の人口データ</h3>
-              <p className="text-gray-600 mb-4">基準年: {populationData.boundaryYear}年</p>
+              <p className="text-gray-600 mb-4">基準年: {populationData.result.boundaryYear}年</p>
               
-              {populationData.data.map((composition) => (
+              {populationData.result.data.map((composition) => (
                 <div key={composition.label} className="mb-4">
                   <h4 className="font-bold">{composition.label}</h4>
                   <div className="max-h-60 overflow-y-auto">

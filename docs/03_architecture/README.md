@@ -87,3 +87,26 @@ src/
 - コードの可読性
 - ドキュメントの充実
 - テストの網羅性
+
+## 重要な前提条件
+
+### API利用について
+- ⚠️ **RESAS APIは2024年1月をもって廃止されました**
+- 代替として、[YUMEMI Frontend Engineer Coding Test API](https://yumemi-frontend-engineer-codecheck-api.vercel.app)を使用します
+- このAPIは、RESASと同様のデータを提供する互換APIとして実装されています
+
+### APIエンドポイント
+- Base URL: `https://yumemi-frontend-engineer-codecheck-api.vercel.app`
+- 認証: APIキーをヘッダーに付与（`X-API-KEY`）
+
+### ⚠️ 重要: エンドポイント仕様
+以下のエンドポイントを**厳密に**使用してください：
+1. 人口構成データ取得
+   - エンドポイント: `/api/v1/population/composition/perYear`
+   - ※ 必ず `/api/v1/` プレフィックスを含めてください
+   - パラメータ: 
+     - `prefCode`: 都道府県コード（必須）
+     - `cityCode`: `-`（必須）
+
+### APIレスポンス形式
+```
