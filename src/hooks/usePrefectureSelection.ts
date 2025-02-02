@@ -5,7 +5,7 @@ interface UsePrefectureSelectionReturn {
   selectedPrefCodes: number[];
   isSelected: (prefCode: number) => boolean;
   toggleSelection: (prefCode: number, checked: boolean) => void;
-  selectAll: () => void;
+  selectAll: (onSelect?: (prefCode: number) => Promise<void>) => void;
   unselectAll: () => void;
   getSelectedPrefectures: (prefectures: Prefecture[]) => Prefecture[];
 }
@@ -32,13 +32,20 @@ export const usePrefectureSelection = (
   );
 
   const selectAll = useCallback(
-    () => {
-      setSelectedPrefCodes((prev) => {
-        if (prev.length === 47) return prev; // 既に全て選択されている場合は何もしない
-        return Array.from({ length: 47 }, (_, i) => i + 1);
-      });
+    async (onSelect?: (prefCode: number) => Promise<void>) => {
+      const allPrefCodes = Array.from({ length: 47 }, (_, i) => i + 1);
+      
+      // 既に選択されていないコードのみを抽出
+      const newPrefCodes = allPrefCodes.filter(code => !selectedPrefCodes.includes(code));
+      
+      // 新しく選択する都道府県のデータを取得
+      if (onSelect) {
+        await Promise.all(newPrefCodes.map(code => onSelect(code)));
+      }
+      
+      setSelectedPrefCodes(allPrefCodes);
     },
-    []
+    [selectedPrefCodes]
   );
 
   const unselectAll = useCallback(
