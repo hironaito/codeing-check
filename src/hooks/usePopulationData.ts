@@ -45,13 +45,9 @@ export const usePopulationData = (): UsePopulationDataReturn => {
    * 人口データを取得する
    */
   const fetchData = useCallback(async (prefCode: number) => {
-    if (data.has(prefCode)) {
-      return;
-    }
-
+    const startTime = performance.now();
     setIsLoading(true);
     setError(null);
-    const start = performance.now();
 
     try {
       // キャッシュをチェック
@@ -59,44 +55,34 @@ export const usePopulationData = (): UsePopulationDataReturn => {
       const cachedData = cacheStore.get<PopulationResponse>(cacheKey);
 
       if (cachedData) {
-        console.log('Cache hit:', cacheKey);
-        const cacheStart = performance.now();
-        await Promise.resolve(); // 非同期処理を挟んで正確な時間を計測
-        setData(prev => {
-          const newData = new Map(prev);
-          newData.set(prefCode, cachedData);
-          return newData;
-        });
-        const end = performance.now();
-        setFetchTimeMs(Math.round(end - cacheStart));
+        setData(prev => new Map(prev).set(prefCode, cachedData));
         setSource('cache');
+        const endTime = performance.now();
+        setFetchTimeMs(Number((endTime - startTime).toFixed(3)));
         setIsLoading(false);
         return;
       }
 
       // APIからデータを取得
-      console.log('Cache miss:', cacheKey);
       const response = await fetchPopulationData(prefCode);
       
       // キャッシュに保存
       cacheStore.set(cacheKey, response);
-      setData(prev => {
-        const newData = new Map(prev);
-        newData.set(prefCode, response);
-        return newData;
-      });
-      const end = performance.now();
-      setFetchTimeMs(Math.round(end - start));
+      setData(prev => new Map(prev).set(prefCode, response));
+      const endTime = performance.now();
+      setFetchTimeMs(Number((endTime - startTime).toFixed(3)));
       setSource('api');
     } catch (err) {
       const errorMessage = err instanceof Error 
         ? err.message 
         : API_ERROR_MESSAGES.UNKNOWN;
       setError(new Error(errorMessage));
+      setSource(null);
+      setFetchTimeMs(null);
     } finally {
       setIsLoading(false);
     }
-  }, [data]);
+  }, []);
 
   return {
     data,

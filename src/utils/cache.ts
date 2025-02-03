@@ -19,6 +19,8 @@ class CacheStore {
    * キャッシュからデータを取得
    */
   get<T>(key: string): T | null {
+    if (typeof window === 'undefined') return null;
+    
     try {
       const item = localStorage.getItem(this.prefix + key);
       if (!item) return null;
@@ -34,6 +36,7 @@ class CacheStore {
       return cache.data;
     } catch (error) {
       console.error('Cache read error:', error);
+      this.remove(key); // エラーの場合はキャッシュを削除
       return null;
     }
   }
@@ -42,6 +45,8 @@ class CacheStore {
    * キャッシュにデータを保存
    */
   set<T>(key: string, data: T): void {
+    if (typeof window === 'undefined') return;
+    
     try {
       const cache: CacheEntry<T> = {
         data,
@@ -50,6 +55,7 @@ class CacheStore {
       localStorage.setItem(this.prefix + key, JSON.stringify(cache));
     } catch (error) {
       console.error('Cache write error:', error);
+      this.remove(key); // エラーの場合はキャッシュを削除
     }
   }
 
@@ -57,6 +63,8 @@ class CacheStore {
    * 特定のキーのキャッシュを削除
    */
   remove(key: string): void {
+    if (typeof window === 'undefined') return;
+    
     try {
       localStorage.removeItem(this.prefix + key);
     } catch (error) {
@@ -68,10 +76,15 @@ class CacheStore {
    * すべてのキャッシュを削除
    */
   clear(): void {
+    if (typeof window === 'undefined') return;
+    
     try {
-      Object.keys(localStorage)
-        .filter(key => key.startsWith(this.prefix))
-        .forEach(key => localStorage.removeItem(key));
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.startsWith(this.prefix)) {
+          localStorage.removeItem(key);
+        }
+      });
     } catch (error) {
       console.error('Cache clear error:', error);
     }
