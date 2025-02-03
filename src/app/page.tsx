@@ -11,6 +11,7 @@ import { usePopulationData } from '@/hooks/usePopulationData';
 import { usePrefectureSelection } from '@/hooks/usePrefectureSelection';
 import { CacheIndicator } from '@/components/ui/CacheIndicator';
 import { toAppError, createErrorState, isErrorCritical, isErrorRecoverable } from '@/utils/error';
+import { FullscreenChart } from '@/components/features/chart/FullscreenChart';
 
 export default function Home() {
   // 都道府県データの取得
@@ -151,7 +152,7 @@ export default function Home() {
         ) : populationError ? (
           <ChartErrorFallback />
         ) : selectedPopulationData.length > 0 ? (
-          <PopulationChart
+          <FullscreenChart
             prefectures={prefectures}
             populationData={selectedPopulationData}
           />
