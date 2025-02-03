@@ -32,9 +32,9 @@ export const RegionSelector: FC<RegionSelectorProps> = ({
   };
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-gray-900">地域から選択</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="space-y-3">
+      <h2 className="text-base font-semibold text-gray-900">地域から選択</h2>
+      <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-8 gap-1.5 sm:gap-2">
         {Object.entries(regionGroups).map(([region, prefs]) => {
           const selectedCount = prefs.filter(pref => 
             selectedPrefCodes.includes(pref.prefCode)
@@ -44,11 +44,11 @@ export const RegionSelector: FC<RegionSelectorProps> = ({
           const isClicked = clickedRegion === region;
 
           return (
-            <div key={region} className="space-y-2">
+            <div key={region} className="w-full">
               <button
                 onClick={() => handleRegionSelect(region, prefs)}
-                className={`relative w-full px-4 py-2 text-sm font-medium rounded-lg border transition-all duration-200 overflow-hidden
-                  transform ${isClicked ? 'scale-95' : 'scale-100 hover:scale-105'}
+                className={`relative w-full h-8 px-2 text-xs sm:text-sm font-medium rounded-md border transition-all duration-200 overflow-hidden touch-manipulation
+                  transform ${isClicked ? 'scale-95' : 'scale-100 hover:scale-[1.02]'}
                   ${isAllSelected 
                     ? 'bg-blue-50 border-blue-300 text-blue-700 hover:bg-blue-100' 
                     : isPartiallySelected
@@ -65,9 +65,11 @@ export const RegionSelector: FC<RegionSelectorProps> = ({
                     }}
                   />
                 )}
-                {region}
-                <span className="ml-2 text-xs text-gray-500">
-                  ({selectedCount}/{prefs.length})
+                <span className="flex items-center justify-center gap-1">
+                  <span className="truncate">{region}</span>
+                  <span className="text-xs text-gray-500 whitespace-nowrap">
+                    ({selectedCount}/{prefs.length})
+                  </span>
                 </span>
               </button>
             </div>

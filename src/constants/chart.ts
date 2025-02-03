@@ -5,8 +5,14 @@
 // グラフのサイズ設定
 export const CHART_DIMENSIONS = {
   aspectRatio: 16 / 9, // アスペクト比
-  minHeight: 400,
-  maxHeight: 600,
+  minHeight: {
+    mobile: 300,
+    desktop: 400,
+  },
+  maxHeight: {
+    mobile: 400,
+    desktop: 600,
+  },
 } as const;
 
 // グラフの色設定
@@ -20,10 +26,18 @@ export const CHART_COLORS = {
 
 // グラフのマージン設定
 export const CHART_MARGINS = {
-  top: 20,
-  right: 30,
-  bottom: 40,
-  left: 60,
+  desktop: {
+    top: 20,
+    right: 30,
+    bottom: 40,
+    left: 60,
+  },
+  mobile: {
+    top: 10,
+    right: 10,
+    bottom: 30,
+    left: 40,
+  },
 } as const;
 
 // グラフのアニメーション設定
@@ -40,7 +54,10 @@ export const CHART_TOOLTIP_STYLE = {
   padding: '12px 16px',
   boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
   outline: 'none',
-  maxWidth: '300px',
+  maxWidth: {
+    mobile: '240px',
+    desktop: '300px',
+  },
   zIndex: 10,
 } as const;
 
@@ -48,11 +65,23 @@ export const CHART_TOOLTIP_STYLE = {
 export const CHART_AXIS_STYLE = {
   stroke: '#9ca3af', // Tailwind gray-400
   strokeWidth: 1,
-  fontSize: 12,
+  fontSize: {
+    mobile: 10,
+    desktop: 12,
+  },
   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-  tickSize: 8,
-  tickPadding: 8,
-  tickRotation: 0,
+  tickSize: {
+    mobile: 4,
+    desktop: 8,
+  },
+  tickPadding: {
+    mobile: 4,
+    desktop: 8,
+  },
+  tickRotation: {
+    mobile: -45,
+    desktop: 0,
+  },
 } as const;
 
 // グラフのグリッド設定
@@ -65,10 +94,19 @@ export const CHART_GRID_STYLE = {
 
 // グラフの凡例設定
 export const CHART_LEGEND_STYLE = {
-  fontSize: 12,
+  fontSize: {
+    mobile: 10,
+    desktop: 12,
+  },
   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-  marginTop: 24,
-  iconSize: 16,
+  marginTop: {
+    mobile: 16,
+    desktop: 24,
+  },
+  iconSize: {
+    mobile: 12,
+    desktop: 16,
+  },
   iconType: 'circle',
   align: 'center' as const,
   verticalAlign: 'bottom' as const,
@@ -78,18 +116,30 @@ export const CHART_LEGEND_STYLE = {
 export const CHART_DOT_STYLE = {
   strokeWidth: 2,
   radius: {
-    normal: 4,
-    active: 6,
+    mobile: {
+      normal: 2,
+      active: 4,
+    },
+    desktop: {
+      normal: 4,
+      active: 6,
+    },
   },
   fill: '#ffffff',
 } as const;
 
 // グラフの線設定
 export const CHART_LINE_STYLE = {
-  strokeWidth: 2.5,
+  strokeWidth: {
+    mobile: 1.5,
+    desktop: 2.5,
+  },
   activeDot: {
     strokeWidth: 2,
-    r: 6,
+    r: {
+      mobile: 4,
+      desktop: 6,
+    },
     fill: '#ffffff',
   },
 } as const; 
