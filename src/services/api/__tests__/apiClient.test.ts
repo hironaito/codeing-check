@@ -2,21 +2,29 @@ import axios from 'axios';
 import { clearCache, cacheStore } from '../apiClient';
 import { API_CONFIG } from '@/constants/api';
 
-// Axiosのモック
-jest.mock('axios', () => {
-  const mockAxios = {
-    create: jest.fn(() => {
-      const mockInterceptors = {
-        request: { use: jest.fn() },
-        response: { use: jest.fn() },
-      };
-      return {
-        interceptors: mockInterceptors,
-      };
-    }),
-  };
-  return mockAxios;
+// 環境変数のモック
+const mockEnv = {
+  NEXT_PUBLIC_API_ENDPOINT: 'https://test-api.example.com',
+  NEXT_PUBLIC_API_KEY: 'test-api-key',
+  NEXT_PUBLIC_API_TIMEOUT: '5000',
+};
+
+// 環境変数の設定
+beforeAll(() => {
+  process.env = { ...process.env, ...mockEnv };
 });
+
+// Axiosのモック
+jest.mock('axios', () => ({
+  create: jest.fn(() => ({
+    interceptors: {
+      request: { use: jest.fn() },
+      response: { use: jest.fn() },
+    },
+    defaults: {},
+  })),
+  isAxiosError: jest.fn(),
+}));
 
 // LocalStorageのモック
 const mockLocalStorage = (() => {
@@ -67,13 +75,13 @@ describe('APIClient', () => {
     mockLocalStorage.clear();
 
     // APIクライアントを再インポートして初期化
-    jest.isolateModules(async () => {
-      await import('../apiClient');
+    jest.isolateModules(() => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require('../apiClient');
+      const mockAxiosInstance = (axios.create as jest.Mock).mock.results[0].value;
+      const interceptorCalls = mockAxiosInstance.interceptors.response.use.mock.calls;
+      responseInterceptor = interceptorCalls[0][1];
     });
-
-    // レスポンスインターセプターの関数を取得
-    const mockAxiosInstance = (axios.create as jest.Mock).mock.results[0].value;
-    [[, responseInterceptor]] = mockAxiosInstance.interceptors.response.use.mock.calls;
   });
 
   afterEach(() => {
