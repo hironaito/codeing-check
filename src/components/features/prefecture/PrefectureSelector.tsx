@@ -18,43 +18,45 @@ export const PrefectureSelector: FC<PrefectureSelectorProps> = ({
   isSelected,
   onChange,
 }) => {
-  const handleClick = () => {
-    onChange(prefecture.prefCode, !isSelected);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(prefecture.prefCode, e.target.checked);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === ' ' || e.key === 'Enter') {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLLabelElement>) => {
+    if (e.key === 'Enter') {
       e.preventDefault();
-      handleClick();
+      onChange(prefecture.prefCode, !isSelected);
     }
   };
 
   return (
-    <div 
-      className="flex items-center p-1 hover:bg-gray-50 rounded-md cursor-pointer transition-colors"
+    <label
+      className={`
+        flex items-center p-1.5 rounded-md cursor-pointer transition-all duration-200
+        ${isSelected 
+          ? 'bg-blue-50 hover:bg-blue-100' 
+          : 'hover:bg-gray-50'
+        }
+        active:scale-95 touch-manipulation
+      `}
+      htmlFor={`prefecture-${prefecture.prefCode}`}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
       role="checkbox"
       aria-checked={isSelected}
-      aria-label={`${prefecture.prefName}を選択`}
-      tabIndex={0}
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
     >
       <input
         type="checkbox"
         id={`prefecture-${prefecture.prefCode}`}
         checked={isSelected}
-        onChange={(e) => onChange(prefecture.prefCode, e.target.checked)}
-        className="h-3.5 w-3.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+        onChange={handleChange}
+        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer transition-all duration-200"
         aria-label={`${prefecture.prefName}を選択`}
-        onClick={(e) => e.stopPropagation()}
+        tabIndex={-1}
       />
-      <label
-        htmlFor={`prefecture-${prefecture.prefCode}`}
-        className="ml-1.5 text-xs font-medium text-gray-700 cursor-pointer select-none truncate"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <span className="ml-1.5 text-xs font-medium text-gray-700 select-none truncate">
         {prefecture.prefName}
-      </label>
-    </div>
+      </span>
+    </label>
   );
 }; 

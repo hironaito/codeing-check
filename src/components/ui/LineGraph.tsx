@@ -1,6 +1,6 @@
 'use client';
 
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import {
   LineChart,
   Line,
@@ -52,8 +52,20 @@ export const LineGraph: FC<LineGraphProps> = ({
   xAxisLabel,
   yAxisLabel,
   tooltipFormatter = (value) => `${value.toLocaleString()}人`,
-  height = CHART_DIMENSIONS.minHeight,
+  height,
 }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // md breakpoint
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const CustomTooltip = ({
     active,
     payload,
@@ -65,24 +77,27 @@ export const LineGraph: FC<LineGraphProps> = ({
 
     return (
       <div
-        style={CHART_TOOLTIP_STYLE}
+        style={{
+          ...CHART_TOOLTIP_STYLE,
+          maxWidth: isMobile ? CHART_TOOLTIP_STYLE.maxWidth.mobile : CHART_TOOLTIP_STYLE.maxWidth.desktop,
+        }}
         className="shadow-lg backdrop-blur-sm transition-opacity duration-200 ease-in-out"
         role="tooltip"
         aria-live="polite"
       >
         <div className="flex flex-col gap-2">
-          <p className="font-bold text-base text-gray-900 border-b border-gray-100 pb-2">{`${label}年`}</p>
+          <p className={`font-bold ${isMobile ? 'text-sm' : 'text-base'} text-gray-900 border-b border-gray-100 pb-2`}>{`${label}年`}</p>
           <div className="space-y-2">
             {payload.map((entry) => (
               <div key={entry.name} className="flex items-center gap-3">
                 <div
-                  className="w-3 h-3 rounded-full flex-shrink-0"
+                  className={`${isMobile ? 'w-2 h-2' : 'w-3 h-3'} rounded-full flex-shrink-0`}
                   style={{ backgroundColor: entry.color }}
                   aria-hidden="true"
                 />
                 <div className="flex items-baseline gap-2">
-                  <span className="font-medium text-sm text-gray-900">{entry.name}</span>
-                  <span className="text-sm text-gray-600">{tooltipFormatter(entry.value as number)}</span>
+                  <span className={`font-medium ${isMobile ? 'text-xs' : 'text-sm'} text-gray-900`}>{entry.name}</span>
+                  <span className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-600`}>{tooltipFormatter(entry.value as number)}</span>
                 </div>
               </div>
             ))}
@@ -92,15 +107,28 @@ export const LineGraph: FC<LineGraphProps> = ({
     );
   };
 
+  const defaultHeight = isMobile ? CHART_DIMENSIONS.minHeight.mobile : CHART_DIMENSIONS.minHeight.desktop;
+  const margins = isMobile ? CHART_MARGINS.mobile : CHART_MARGINS.desktop;
+  const fontSize = isMobile ? CHART_AXIS_STYLE.fontSize.mobile : CHART_AXIS_STYLE.fontSize.desktop;
+  const tickSize = isMobile ? CHART_AXIS_STYLE.tickSize.mobile : CHART_AXIS_STYLE.tickSize.desktop;
+  const tickPadding = isMobile ? CHART_AXIS_STYLE.tickPadding.mobile : CHART_AXIS_STYLE.tickPadding.desktop;
+  const tickRotation = isMobile ? CHART_AXIS_STYLE.tickRotation.mobile : CHART_AXIS_STYLE.tickRotation.desktop;
+  const legendFontSize = isMobile ? CHART_LEGEND_STYLE.fontSize.mobile : CHART_LEGEND_STYLE.fontSize.desktop;
+  const legendMarginTop = isMobile ? CHART_LEGEND_STYLE.marginTop.mobile : CHART_LEGEND_STYLE.marginTop.desktop;
+  const legendIconSize = isMobile ? CHART_LEGEND_STYLE.iconSize.mobile : CHART_LEGEND_STYLE.iconSize.desktop;
+  const dotRadius = isMobile ? CHART_DOT_STYLE.radius.mobile : CHART_DOT_STYLE.radius.desktop;
+  const lineStrokeWidth = isMobile ? CHART_LINE_STYLE.strokeWidth.mobile : CHART_LINE_STYLE.strokeWidth.desktop;
+  const activeDotRadius = isMobile ? CHART_LINE_STYLE.activeDot.r.mobile : CHART_LINE_STYLE.activeDot.r.desktop;
+
   return (
     <div
-      className={`w-full bg-white rounded-lg shadow-sm p-4 ${className}`}
-      style={{ height: `${height}px` }}
+      className={`w-full bg-white rounded-lg shadow-sm p-1 sm:p-4 ${className}`}
+      style={{ height: `${height || defaultHeight}px` }}
     >
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={data}
-          margin={CHART_MARGINS}
+          margin={margins}
         >
           <CartesianGrid
             {...CHART_GRID_STYLE}
@@ -111,12 +139,13 @@ export const LineGraph: FC<LineGraphProps> = ({
             label={{
               value: xAxisLabel,
               position: 'bottom',
-              offset: -CHART_MARGINS.bottom / 2,
-              ...CHART_AXIS_STYLE,
+              offset: -margins.bottom / 2,
+              fontSize,
             }}
             tick={{
-              ...CHART_AXIS_STYLE,
-              dy: CHART_AXIS_STYLE.tickPadding,
+              fontSize,
+              dy: tickPadding,
+              transform: `rotate(${tickRotation})`,
             }}
             tickLine={{
               stroke: CHART_AXIS_STYLE.stroke,
@@ -126,18 +155,19 @@ export const LineGraph: FC<LineGraphProps> = ({
               stroke: CHART_AXIS_STYLE.stroke,
               strokeWidth: CHART_AXIS_STYLE.strokeWidth,
             }}
+            tickSize={tickSize}
           />
           <YAxis
             label={{
               value: yAxisLabel,
               angle: -90,
               position: 'left',
-              offset: -CHART_MARGINS.left + 20,
-              ...CHART_AXIS_STYLE,
+              offset: -margins.left + (isMobile ? 10 : 20),
+              fontSize,
             }}
             tick={{
-              ...CHART_AXIS_STYLE,
-              dx: -CHART_AXIS_STYLE.tickPadding,
+              fontSize,
+              dx: -tickPadding,
             }}
             tickLine={{
               stroke: CHART_AXIS_STYLE.stroke,
@@ -147,6 +177,7 @@ export const LineGraph: FC<LineGraphProps> = ({
               stroke: CHART_AXIS_STYLE.stroke,
               strokeWidth: CHART_AXIS_STYLE.strokeWidth,
             }}
+            tickSize={tickSize}
             tickFormatter={(value) => value.toLocaleString()}
           />
           <Tooltip
@@ -154,12 +185,14 @@ export const LineGraph: FC<LineGraphProps> = ({
             cursor={{ stroke: CHART_AXIS_STYLE.stroke, strokeWidth: 1 }}
           />
           <Legend
-            {...CHART_LEGEND_STYLE}
             wrapperStyle={{
-              paddingTop: CHART_LEGEND_STYLE.marginTop,
+              paddingTop: legendMarginTop,
               fontFamily: CHART_LEGEND_STYLE.fontFamily,
-              fontSize: CHART_LEGEND_STYLE.fontSize,
+              fontSize: legendFontSize,
             }}
+            iconSize={legendIconSize}
+            align={CHART_LEGEND_STYLE.align}
+            verticalAlign={CHART_LEGEND_STYLE.verticalAlign}
           />
           {lines.map((line, index) => (
             <Line
@@ -168,15 +201,15 @@ export const LineGraph: FC<LineGraphProps> = ({
               dataKey={line.dataKey}
               name={line.name}
               stroke={line.color || Object.values(CHART_COLORS)[index % Object.keys(CHART_COLORS).length]}
-              strokeWidth={CHART_LINE_STYLE.strokeWidth}
+              strokeWidth={lineStrokeWidth}
               dot={{
-                r: CHART_DOT_STYLE.radius.normal,
+                r: dotRadius.normal,
                 strokeWidth: CHART_DOT_STYLE.strokeWidth,
                 fill: CHART_DOT_STYLE.fill,
                 stroke: line.color || Object.values(CHART_COLORS)[index % Object.keys(CHART_COLORS).length],
               }}
               activeDot={{
-                r: CHART_DOT_STYLE.radius.active,
+                r: dotRadius.active,
                 strokeWidth: CHART_LINE_STYLE.activeDot.strokeWidth,
                 fill: CHART_LINE_STYLE.activeDot.fill,
                 stroke: line.color || Object.values(CHART_COLORS)[index % Object.keys(CHART_COLORS).length],

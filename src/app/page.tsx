@@ -10,6 +10,8 @@ import { usePrefectureData } from '@/hooks/usePrefectureData';
 import { usePopulationData } from '@/hooks/usePopulationData';
 import { usePrefectureSelection } from '@/hooks/usePrefectureSelection';
 import { CacheIndicator } from '@/components/ui/CacheIndicator';
+import { toAppError, createErrorState, isErrorCritical, isErrorRecoverable } from '@/utils/error';
+import { FullscreenChart } from '@/components/features/chart/FullscreenChart';
 
 export default function Home() {
   // 都道府県データの取得
@@ -81,16 +83,40 @@ export default function Home() {
   return (
     <main className="container mx-auto px-4 py-8">
       {/* エラー表示 */}
-      {(prefectureError || populationError) && (
-        <div className="mb-4">
-          <ErrorDisplay />
-        </div>
-      )}
+      {(prefectureError || populationError) && (() => {
+        const error = prefectureError
+          ? createErrorState(toAppError(prefectureError).code)
+          : populationError
+          ? createErrorState(toAppError(populationError).code)
+          : null;
+
+        if (!error) return null;
+
+        return (
+          <div className="mb-4">
+            <ErrorDisplay
+              error={error}
+              errorMessage={prefectureError?.message || populationError?.message || '予期せぬエラーが発生しました'}
+              isCritical={isErrorCritical(error)}
+              isRecoverable={isErrorRecoverable(error)}
+              onClear={() => {
+                // エラーをクリアする処理
+                if (prefectureError) {
+                  fetchPrefectures();
+                }
+                if (populationError) {
+                  clearCache();
+                }
+              }}
+            />
+          </div>
+        );
+      })()}
 
       {/* ヘッダー */}
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">都道府県別人口推移グラフ</h1>
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-8 mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">都道府県別人口推移グラフ</h1>
+        <div className="flex items-center justify-end gap-3 sm:gap-4">
           <CacheIndicator
             source={source}
             fetchTimeMs={fetchTimeMs}
@@ -98,7 +124,7 @@ export default function Home() {
           />
           <button
             onClick={clearCache}
-            className="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-colors"
+            className="shrink-0 h-8 px-3 text-sm text-gray-700 bg-white border border-gray-300 rounded hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-colors"
           >
             キャッシュクリア
           </button>
@@ -126,7 +152,7 @@ export default function Home() {
         ) : populationError ? (
           <ChartErrorFallback />
         ) : selectedPopulationData.length > 0 ? (
-          <PopulationChart
+          <FullscreenChart
             prefectures={prefectures}
             populationData={selectedPopulationData}
           />

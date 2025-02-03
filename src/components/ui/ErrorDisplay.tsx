@@ -28,13 +28,18 @@ export const ErrorDisplay = memo(({
   if (!error) return null;
 
   return (
-    <Alert variant={isCritical ? "destructive" : "warning"} className="mb-4">
+    <Alert
+      variant={isCritical ? "destructive" : "warning"}
+      className="mb-4"
+      role="alert"
+      aria-live="assertive"
+    >
       <div className="flex items-start gap-4">
         <div className="mt-1">
           {isCritical ? (
-            <XCircle className="h-5 w-5" />
+            <XCircle className="h-5 w-5" aria-hidden="true" />
           ) : (
-            <AlertTriangle className="h-5 w-5" />
+            <AlertTriangle className="h-5 w-5" aria-hidden="true" />
           )}
         </div>
         <div className="flex-1">
@@ -49,8 +54,9 @@ export const ErrorDisplay = memo(({
                 size="sm"
                 className="mt-2"
                 onClick={handleClearError}
+                aria-label="エラーを解消して再試行"
               >
-                <RefreshCw className="mr-2 h-4 w-4" />
+                <RefreshCw className="mr-2 h-4 w-4" aria-hidden="true" />
                 再試行
               </Button>
             )}
