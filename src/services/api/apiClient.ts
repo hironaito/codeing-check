@@ -45,7 +45,7 @@ export const clearCache = (): void => {
   cacheStore.clear();
 };
 
-const cacheStore = {
+export const cacheStore = {
   get: (key: string): CacheEntry | undefined => {
     try {
       const item = localStorage.getItem(API_CONFIG.CACHE.PREFIX + key);
@@ -76,9 +76,12 @@ const cacheStore = {
 
   clear: (): void => {
     try {
-      Object.keys(localStorage)
-        .filter(key => key.startsWith(API_CONFIG.CACHE.PREFIX))
-        .forEach(key => localStorage.removeItem(key));
+      const keys = localStorage.keys();
+      for (const key of keys) {
+        if (key.startsWith(API_CONFIG.CACHE.PREFIX)) {
+          localStorage.removeItem(key);
+        }
+      }
     } catch (error) {
       console.error('Cache clear error:', error);
     }
@@ -221,4 +224,4 @@ apiClient.interceptors.response.use(
 
     throw new APIError(API_ERROR_MESSAGES.UNKNOWN);
   },
-); 
+);
