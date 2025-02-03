@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { usePrefectureData } from '@/hooks/usePrefectureData';
 import { usePopulationData } from '@/hooks/usePopulationData';
 import type { Prefecture } from '@/types/api/prefecture';
-import { PopulationComposition, PopulationData, PopulationResponse } from '@/types/api/population';
+import { PopulationComposition, PopulationData } from '@/types/api/population';
 
 export default function TestPage() {
   const [selectedPref, setSelectedPref] = useState<Prefecture | null>(null);
@@ -20,7 +19,6 @@ export default function TestPage() {
     error: prefectureError,
     fetchData: fetchPrefectureList,
     clearCache: clearPrefectureCache,
-    source: prefSource,
   } = usePrefectureData();
 
   // 人口データ取得フックを使用
@@ -58,7 +56,7 @@ export default function TestPage() {
     }
   };
 
-  const handleFetchPrefectures = async () => {
+  const handleFetchPrefectures = useCallback(async () => {
     try {
       const start = performance.now();
       const source = await fetchPrefectureList();
@@ -68,11 +66,11 @@ export default function TestPage() {
     } catch (err) {
       console.error('都道府県一覧の取得に失敗しました:', err);
     }
-  };
+  }, [fetchPrefectureList]);
 
   useEffect(() => {
     handleFetchPrefectures();
-  }, []);
+  }, [handleFetchPrefectures]);
 
   // エラー状態の統合
   const displayError = prefectureError?.message || populationError?.message || null;
@@ -184,4 +182,4 @@ export default function TestPage() {
       </div>
     </div>
   );
-} 
+}

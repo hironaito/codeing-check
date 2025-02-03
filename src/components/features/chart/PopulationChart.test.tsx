@@ -45,9 +45,22 @@ const mockPopulationData: {
   },
 ];
 
+// LineGraphの型定義
+type LineGraphProps = {
+  data: Array<{
+    year: number;
+    [key: string]: number;
+  }>;
+  lines: Array<{
+    dataKey: string;
+    name: string;
+    color?: string;
+  }>;
+};
+
 // LineGraphコンポーネントのモック
 jest.mock('@/components/ui/LineGraph', () => ({
-  LineGraph: ({ data, lines }: any) => (
+  LineGraph: ({ data, lines }: LineGraphProps) => (
     <div data-testid="line-graph">
       <div data-testid="graph-data">{JSON.stringify(data)}</div>
       <div data-testid="graph-lines">{JSON.stringify(lines)}</div>
@@ -108,4 +121,4 @@ describe('PopulationChart', () => {
     const wrapper = screen.getByTestId('line-graph').parentElement;
     expect(wrapper).toHaveClass('custom-class');
   });
-}); 
+});

@@ -3,9 +3,23 @@ import { PopulationChart } from '../PopulationChart';
 import { Prefecture } from '@/types/api/prefecture';
 import { PrefecturePopulation } from '@/types/api/population';
 
+// LineGraphの型定義
+type LineGraphProps = {
+  data: Array<{
+    year: number;
+    value: number;
+    [key: string]: number;
+  }>;
+  lines: Array<{
+    dataKey: string;
+    name: string;
+    color?: string;
+  }>;
+};
+
 // LineGraphコンポーネントをモック
 jest.mock('@/components/ui/LineGraph', () => ({
-  LineGraph: ({ data, lines }: any) => (
+  LineGraph: ({ data, lines }: LineGraphProps) => (
     <div data-testid="line-graph">
       <div data-testid="chart-data">{JSON.stringify(data)}</div>
       <div data-testid="chart-lines">{JSON.stringify(lines)}</div>
@@ -175,4 +189,4 @@ describe('PopulationChart', () => {
     expect(chartData[0].value1).toBe(5000000);
     expect(chartData[0].year).toBe(2015);
   });
-}); 
+});

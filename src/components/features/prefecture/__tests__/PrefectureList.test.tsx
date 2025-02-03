@@ -1,5 +1,5 @@
 import { render, screen, within, fireEvent } from '@testing-library/react';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { toHaveNoViolations } from 'jest-axe';
 import { PrefectureList } from '../PrefectureList';
 import type { Prefecture } from '../PrefectureList';
 
@@ -121,7 +121,7 @@ describe('PrefectureList', () => {
   });
 
   it('should be accessible', async () => {
-    const { container } = render(<PrefectureList {...defaultProps} />);
+    render(<PrefectureList {...defaultProps} />);
     
     // チェックボックスの役割が適切に設定されていることを確認
     const checkboxes = screen.getAllByRole('checkbox');
@@ -140,4 +140,4 @@ describe('PrefectureList', () => {
     // const results = await axe(container);
     // expect(results).toHaveNoViolations();
   });
-}); 
+});

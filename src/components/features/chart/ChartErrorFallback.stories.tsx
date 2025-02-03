@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta } from '@storybook/react';
 import { ChartErrorFallback } from './ChartErrorFallback';
 
 const meta = {
@@ -11,7 +11,6 @@ const meta = {
 } satisfies Meta<typeof ChartErrorFallback>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
 
 export const Default = {
   render: () => (
@@ -42,4 +41,4 @@ export const WithRetryButton = {
       />
     </div>
   ),
-}; 
+};

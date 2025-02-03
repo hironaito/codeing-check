@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, renderHook, act } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { PrefectureDataProvider, usePrefectureDataContext } from '../PrefectureDataContext';
 import { fetchPrefectures } from '@/services/api/prefecture';
 import { Prefecture } from '@/types/api/prefecture';
@@ -57,8 +57,9 @@ describe('PrefectureDataContext', () => {
     await act(async () => {
       try {
         await result.current.fetchPrefectures();
-      } catch (e) {
-        // エラーは期待される動作
+      } catch (error) {
+        // エラーハンドリングの検証
+        expect(error).toBe(error);
         expect(mockFetchPrefectures).toHaveBeenCalled();
         expect(result.current.state.error).toEqual(error);
         expect(result.current.state.isLoading).toBeFalsy();

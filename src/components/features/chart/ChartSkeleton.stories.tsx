@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta } from '@storybook/react';
 import { ChartSkeleton } from './ChartSkeleton';
 
 const meta = {
@@ -11,7 +11,6 @@ const meta = {
 } satisfies Meta<typeof ChartSkeleton>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
 
 // サンプルデータ
 const sampleData = [
@@ -71,4 +70,4 @@ export const LoadingMultipleLines = {
       />
     </div>
   ),
-}; 
+};

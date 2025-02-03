@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ErrorState, ErrorCode } from '@/types/error';
+import { ErrorState } from '@/types/error';
 import {
   createErrorState,
   toAppError,
@@ -88,4 +88,4 @@ export const useErrorStateWithCallback = (
     ...errorState,
     setError,
   };
-}; 
+};
