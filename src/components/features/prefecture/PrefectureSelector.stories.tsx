@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta } from '@storybook/react';
 import { PrefectureSelector } from './PrefectureSelector';
 
 const meta = {
@@ -12,7 +12,6 @@ const meta = {
 } satisfies Meta<typeof PrefectureSelector>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
 
 // インタラクティブな動作確認用（デフォルト）
 const PrefectureSelectorStory = () => {
@@ -58,4 +57,4 @@ const SelectedPrefectureStory = () => {
 
 export const Selected = {
   render: () => <SelectedPrefectureStory />
-}; 
+};

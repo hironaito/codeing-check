@@ -1,7 +1,6 @@
 import axios from 'axios';
-import { apiClient, clearCache, cacheStore } from '../apiClient';
+import { clearCache, cacheStore } from '../apiClient';
 import { API_CONFIG } from '@/constants/api';
-import { APIError } from '@/types/api/error';
 
 // Axiosのモック
 jest.mock('axios', () => {
@@ -47,8 +46,19 @@ Object.defineProperty(window, 'localStorage', {
   configurable: true,
 });
 
+// インターセプターの型定義
+type ResponseInterceptor = (error: {
+  response?: { 
+    status: number; 
+    data?: { message: string } 
+  };
+  request?: unknown;
+  config?: { retryCount: number; method: string; url: string };
+  message?: string;
+}) => Promise<never>;
+
 // インターセプターのモック関数を保持する変数
-let responseInterceptor: any;
+let responseInterceptor: ResponseInterceptor;
 
 describe('APIClient', () => {
   beforeEach(() => {
@@ -57,8 +67,8 @@ describe('APIClient', () => {
     mockLocalStorage.clear();
 
     // APIクライアントを再インポートして初期化
-    jest.isolateModules(() => {
-      require('../apiClient');
+    jest.isolateModules(async () => {
+      await import('../apiClient');
     });
 
     // レスポンスインターセプターの関数を取得

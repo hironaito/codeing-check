@@ -42,7 +42,7 @@ describe('ErrorStateContext', () => {
 
   it('should provide error state to children', () => {
     const TestComponent = () => {
-      const { error, setError, errorMessage } = useErrorStateContext();
+      const { setError, errorMessage } = useErrorStateContext();
       return (
         <div>
           <span data-testid="error-message">{errorMessage}</span>

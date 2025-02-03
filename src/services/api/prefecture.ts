@@ -1,5 +1,4 @@
 import { Prefecture } from '@/types/api/prefecture';
-import { API_ENDPOINTS } from '@/constants/api';
 
 /**
  * APIの設定を取得・検証する
@@ -45,4 +44,4 @@ export const fetchPrefectures = async (): Promise<Prefecture[]> => {
     }
     throw new Error('Failed to fetch prefectures');
   }
-}; 
+};

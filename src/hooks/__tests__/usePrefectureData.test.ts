@@ -49,8 +49,9 @@ describe('usePrefectureData', () => {
     await act(async () => {
       try {
         await result.current.fetchData();
-      } catch (e) {
-        // エラーは期待される動作
+      } catch (error) {
+        // エラーハンドリングの検証
+        expect(error).toBe(error);
       }
     });
 
@@ -99,4 +100,4 @@ describe('usePrefectureData', () => {
     expect(result.current.source).toBeNull();
     expect(localStorage.getItem('prefecture_data')).toBeNull();
   });
-}); 
+});

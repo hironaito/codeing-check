@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
+import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { API_ERROR_MESSAGES, API_CONFIG } from '@/constants/api';
 import { APIError, type ErrorResponse } from '@/types/api/error';
 import type {
@@ -89,7 +89,7 @@ export const cacheStore = {
 };
 
 // キャッシュキーの生成
-const generateCacheKey = (config: any): string => {
+const generateCacheKey = (config: ExtendedRequestConfig): string => {
   const { url, params, method } = config;
   return `${method}:${url}:${JSON.stringify(params || {})}`;
 };

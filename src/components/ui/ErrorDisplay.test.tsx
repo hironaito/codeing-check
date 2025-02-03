@@ -9,24 +9,52 @@ jest.mock('lucide-react', () => ({
   RefreshCw: () => <span role="img" aria-hidden="true" data-testid="refresh-icon" />,
 }));
 
+// 型定義
+type AlertProps = {
+  variant?: 'default' | 'destructive' | 'warning';
+  className?: string;
+  children: React.ReactNode;
+  role?: string;
+  'aria-live'?: 'off' | 'assertive' | 'polite';
+};
+
+type AlertTitleProps = {
+  className?: string;
+  children: React.ReactNode;
+};
+
+type AlertDescriptionProps = {
+  className?: string;
+  children: React.ReactNode;
+};
+
+type ButtonProps = {
+  variant?: 'outline' | 'default';
+  size?: 'sm' | 'default';
+  className?: string;
+  onClick?: () => void;
+  children: React.ReactNode;
+  'aria-label'?: string;
+};
+
 // alertコンポーネントのモック
 jest.mock('./alert', () => ({
-  Alert: (props: any) => (
+  Alert: (props: AlertProps) => (
     <div data-testid="alert" data-variant={props.variant} className={props.className} {...props}>
       {props.children}
     </div>
   ),
-  AlertTitle: (props: any) => (
+  AlertTitle: (props: AlertTitleProps) => (
     <h5 data-testid="alert-title" className={props.className}>{props.children}</h5>
   ),
-  AlertDescription: (props: any) => (
+  AlertDescription: (props: AlertDescriptionProps) => (
     <div data-testid="alert-description" className={props.className}>{props.children}</div>
   ),
 }));
 
 // buttonコンポーネントのモック
 jest.mock('./button', () => ({
-  Button: (props: any) => (
+  Button: (props: ButtonProps) => (
     <button
       data-testid="button"
       data-variant={props.variant}
@@ -145,4 +173,4 @@ describe('ErrorDisplay', () => {
       expect(icon).toHaveAttribute('aria-hidden', 'true');
     });
   });
-}); 
+});

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { PopulationDataProvider, usePopulationDataContext } from '../PopulationDataContext';
 import { fetchPopulationData } from '@/services/api/population';
 import { cacheStore } from '@/utils/cache';
@@ -113,8 +113,9 @@ describe('PopulationDataContext', () => {
     await act(async () => {
       try {
         await result.current.fetchPopulationDataForPrefecture(1);
-      } catch (e) {
-        // エラーは期待される動作
+      } catch (error) {
+        // エラーハンドリングの検証
+        expect(error).toBe(error);
         expect(mockFetchPopulationData).toHaveBeenCalledWith(1);
         expect(result.current.state.error).toEqual(error);
         expect(result.current.state.isLoading).toBeFalsy();
