@@ -13,7 +13,12 @@
     "test": "jest",
     "test:coverage": "jest --coverage",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:update": "playwright test --update-snapshots"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.1",
@@ -37,6 +42,7 @@
     "@babel/preset-typescript": "^7.26.0",
     "@chromatic-com/storybook": "^3.2.4",
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.50.1",
     "@storybook/addon-a11y": "^8.5.2",
     "@storybook/addon-essentials": "^8.5.2",
     "@storybook/addon-interactions": "^8.5.2",
