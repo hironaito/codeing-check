@@ -10,6 +10,7 @@ import { usePrefectureData } from '@/hooks/usePrefectureData';
 import { usePopulationData } from '@/hooks/usePopulationData';
 import { usePrefectureSelection } from '@/hooks/usePrefectureSelection';
 import { CacheIndicator } from '@/components/ui/CacheIndicator';
+import { toAppError, createErrorState, isErrorCritical, isErrorRecoverable } from '@/utils/error';
 
 export default function Home() {
   // 都道府県データの取得
@@ -81,11 +82,35 @@ export default function Home() {
   return (
     <main className="container mx-auto px-4 py-8">
       {/* エラー表示 */}
-      {(prefectureError || populationError) && (
-        <div className="mb-4">
-          <ErrorDisplay />
-        </div>
-      )}
+      {(prefectureError || populationError) && (() => {
+        const error = prefectureError
+          ? createErrorState(toAppError(prefectureError).code)
+          : populationError
+          ? createErrorState(toAppError(populationError).code)
+          : null;
+
+        if (!error) return null;
+
+        return (
+          <div className="mb-4">
+            <ErrorDisplay
+              error={error}
+              errorMessage={prefectureError?.message || populationError?.message || '予期せぬエラーが発生しました'}
+              isCritical={isErrorCritical(error)}
+              isRecoverable={isErrorRecoverable(error)}
+              onClear={() => {
+                // エラーをクリアする処理
+                if (prefectureError) {
+                  fetchPrefectures();
+                }
+                if (populationError) {
+                  clearCache();
+                }
+              }}
+            />
+          </div>
+        );
+      })()}
 
       {/* ヘッダー */}
       <div className="flex items-center justify-between mb-8">

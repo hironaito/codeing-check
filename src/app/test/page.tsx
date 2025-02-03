@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { usePrefectureData } from '@/hooks/usePrefectureData';
 import { usePopulationData } from '@/hooks/usePopulationData';
 import type { Prefecture } from '@/types/api/prefecture';
+import { PopulationComposition, PopulationData, PopulationResponse } from '@/types/api/population';
 
 export default function TestPage() {
   const [selectedPref, setSelectedPref] = useState<Prefecture | null>(null);
@@ -78,6 +79,9 @@ export default function TestPage() {
   // ローディング状態の統合
   const isLoadingAny = isLoadingPrefectures || isLoadingPopulation;
 
+  // populationDataからデータを取得
+  const populationResult = selectedPref ? populationData.get(selectedPref.prefCode) : null;
+
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">都道府県一覧API テスト</h1>
@@ -146,24 +150,24 @@ export default function TestPage() {
 
         <div>
           <h2 className="text-xl font-bold mb-4">人口データ</h2>
-          {selectedPref && populationData && (
+          {selectedPref && populationResult && (
             <div className="bg-white p-4 rounded shadow">
               <h3 className="font-bold text-lg mb-2">{selectedPref.prefName}の人口データ</h3>
-              <p className="text-gray-600 mb-4">基準年: {populationData.result.boundaryYear}年</p>
+              <p className="text-gray-600 mb-4">基準年: {populationResult.result.boundaryYear}年</p>
               
-              {populationData.result.data.map((composition) => (
+              {populationResult.result.data.map((composition: PopulationComposition) => (
                 <div key={composition.label} className="mb-4">
                   <h4 className="font-bold">{composition.label}</h4>
                   <div className="max-h-60 overflow-y-auto">
-                    <table className="w-full">
+                    <table className="min-w-full">
                       <thead>
                         <tr>
-                          <th className="px-4 py-2">年</th>
-                          <th className="px-4 py-2">人口</th>
+                          <th className="border px-4 py-2">年</th>
+                          <th className="border px-4 py-2">人口</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {composition.data.map((data) => (
+                        {composition.data.map((data: PopulationData) => (
                           <tr key={data.year}>
                             <td className="border px-4 py-2">{data.year}年</td>
                             <td className="border px-4 py-2">{data.value.toLocaleString()}人</td>
