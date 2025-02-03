@@ -57,7 +57,9 @@ const populationReducer = (state: PopulationState, action: PopulationAction): Po
     case 'SELECT_PREFECTURE':
       return {
         ...state,
-        selectedPrefCodes: [...state.selectedPrefCodes, action.payload],
+        selectedPrefCodes: state.selectedPrefCodes.includes(action.payload)
+          ? state.selectedPrefCodes
+          : [...state.selectedPrefCodes, action.payload],
       };
     case 'DESELECT_PREFECTURE':
       return {
@@ -89,13 +91,14 @@ export const PopulationDataProvider = ({ children }: { children: ReactNode }) =>
     const cacheKey = `population_${prefCode}`;
     const cachedData = cacheStore.get<PopulationResponse>(cacheKey);
 
+    dispatch({ type: 'FETCH_START' });
+
     if (cachedData) {
       dispatch({ type: 'FETCH_SUCCESS', payload: { prefCode, data: cachedData } });
       return;
     }
 
     try {
-      dispatch({ type: 'FETCH_START' });
       const data = await fetchPopulationData(prefCode);
       cacheStore.set(cacheKey, data);
       dispatch({ type: 'FETCH_SUCCESS', payload: { prefCode, data } });
