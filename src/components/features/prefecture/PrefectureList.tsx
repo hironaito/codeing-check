@@ -31,7 +31,7 @@ export const PrefectureList: FC<PrefectureListProps> = ({
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4" role="status" aria-label="読み込み中">
         <div className="flex items-center justify-between p-3 sm:px-4 sm:py-2 bg-gray-50 rounded-lg animate-pulse">
           <div className="h-4 w-24 bg-gray-200 rounded" />
           <div className="flex gap-2 sm:space-x-2">
