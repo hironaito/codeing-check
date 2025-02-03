@@ -152,4 +152,85 @@ describe('PopulationDataContext', () => {
     const populationData = result.current.getPopulationDataByType(1, '総人口');
     expect(populationData).toEqual(mockPopulationData.result.data[0]);
   });
+
+  it('should handle loading state correctly', async () => {
+    const { result } = renderHook(() => usePopulationDataContext(), { wrapper });
+
+    // キャッシュを無効化
+    (cacheStore.get as jest.Mock).mockReturnValue(null);
+
+    // データ取得を遅延させる
+    mockFetchPopulationData.mockImplementation(
+      () => new Promise(resolve => setTimeout(() => resolve(mockPopulationData), 100))
+    );
+
+    // データ取得開始
+    let fetchPromise: Promise<void>;
+    act(() => {
+      fetchPromise = result.current.fetchPopulationDataForPrefecture(1);
+    });
+
+    // ローディング状態の確認
+    expect(result.current.state.isLoading).toBeTruthy();
+
+    // データ取得完了を待つ
+    await act(async () => {
+      await fetchPromise;
+    });
+
+    // ローディング状態の解除を確認
+    expect(result.current.state.isLoading).toBeFalsy();
+    expect(result.current.state.data[1]).toEqual(mockPopulationData);
+  });
+
+  it('should handle multiple prefecture selections', async () => {
+    const { result } = renderHook(() => usePopulationDataContext(), { wrapper });
+
+    // 複数の都道府県を選択
+    await act(async () => {
+      await result.current.selectPrefecture(1);
+      await result.current.selectPrefecture(2);
+    });
+
+    expect(result.current.state.selectedPrefCodes).toEqual([1, 2]);
+    expect(result.current.state.data[1]).toEqual(mockPopulationData);
+    expect(result.current.state.data[2]).toEqual(mockPopulationData);
+
+    // 一つの都道府県を選択解除
+    act(() => {
+      result.current.deselectPrefecture(1);
+    });
+
+    expect(result.current.state.selectedPrefCodes).toEqual([2]);
+  });
+
+  it('should not duplicate prefecture selection', async () => {
+    const { result } = renderHook(() => usePopulationDataContext(), { wrapper });
+
+    // キャッシュをクリアして、APIコールが確実に行われるようにする
+    (cacheStore.get as jest.Mock).mockReturnValue(null);
+
+    // 同じ都道府県を2回選択
+    await act(async () => {
+      await result.current.selectPrefecture(1);
+    });
+
+    await act(async () => {
+      await result.current.selectPrefecture(1);
+    });
+
+    expect(result.current.state.selectedPrefCodes).toEqual([1]);
+    expect(mockFetchPopulationData).toHaveBeenCalledTimes(1);
+  });
+
+  it('should handle non-existent population data type', async () => {
+    const { result } = renderHook(() => usePopulationDataContext(), { wrapper });
+
+    await act(async () => {
+      await result.current.fetchPopulationDataForPrefecture(1);
+    });
+
+    const nonExistentData = result.current.getPopulationDataByType(1, '存在しないデータ');
+    expect(nonExistentData).toBeNull();
+  });
 });
