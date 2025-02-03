@@ -23,9 +23,9 @@ export interface ExtendedRequestConfig extends Omit<InternalAxiosRequestConfig, 
 /**
  * キャッシュエントリの型
  */
-export interface CacheEntry {
+export interface CacheEntry<T = unknown> {
   /** キャッシュされたデータ */
-  data: any;
+  data: T;
   /** キャッシュされた時刻 */
   timestamp: number;
 }
@@ -33,9 +33,9 @@ export interface CacheEntry {
 /**
  * ストレージキャッシュの型
  */
-export interface StorageCache {
+export interface StorageCache<T = unknown> {
   /** キャッシュされたデータ */
-  data: any;
+  data: T;
   /** キャッシュされた時刻 */
   timestamp: number;
 } 

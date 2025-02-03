@@ -66,3 +66,5 @@ export const ErrorDisplay = memo(({
     </Alert>
   );
 });
+
+ErrorDisplay.displayName = 'ErrorDisplay';

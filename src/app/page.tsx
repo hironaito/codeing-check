@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react';
 import { PrefectureList } from '@/components/features/prefecture/PrefectureList';
-import { PopulationChart } from '@/components/features/chart/PopulationChart';
 import { ChartSkeleton } from '@/components/features/chart/ChartSkeleton';
 import { ChartErrorFallback } from '@/components/features/chart/ChartErrorFallback';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
