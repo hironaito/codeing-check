@@ -1,17 +1,29 @@
 'use client';
 
 import { memo, useCallback } from 'react';
-import { useErrorStateContext } from '../../store/ErrorStateContext';
 import { Alert, AlertTitle, AlertDescription } from './alert';
 import { Button } from './button';
 import { XCircle, AlertTriangle, RefreshCw } from 'lucide-react';
+import type { ErrorState } from '@/types/error';
 
-export const ErrorDisplay = memo(() => {
-  const { error, errorMessage, isRecoverable, isCritical, clearError } = useErrorStateContext();
+interface ErrorDisplayProps {
+  error: ErrorState | null;
+  errorMessage: string | null;
+  isRecoverable: boolean;
+  isCritical: boolean;
+  onClear?: () => void;
+}
 
+export const ErrorDisplay = memo(({
+  error,
+  errorMessage,
+  isRecoverable,
+  isCritical,
+  onClear,
+}: ErrorDisplayProps) => {
   const handleClearError = useCallback(() => {
-    clearError();
-  }, [clearError]);
+    onClear?.();
+  }, [onClear]);
 
   if (!error) return null;
 
