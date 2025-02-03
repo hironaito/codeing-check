@@ -9,6 +9,7 @@ import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { usePrefectureData } from '@/hooks/usePrefectureData';
 import { usePopulationData } from '@/hooks/usePopulationData';
 import { usePrefectureSelection } from '@/hooks/usePrefectureSelection';
+import { CacheIndicator } from '@/components/ui/CacheIndicator';
 
 export default function Home() {
   // 都道府県データの取得
@@ -26,7 +27,6 @@ export default function Home() {
     error: populationError,
     fetchData: fetchPopulation,
     clearCache,
-    lastFetchTime,
     fetchTimeMs,
     source,
   } = usePopulationData();
@@ -52,6 +52,11 @@ export default function Home() {
     }
   };
 
+  // 全選択時の処理
+  const handleSelectAll = async () => {
+    await selectAll(fetchPopulation);
+  };
+
   // 選択された都道府県の人口データを抽出
   const selectedPopulationData = selectedPrefCodes
     .filter(prefCode => populationData.has(prefCode))
@@ -74,78 +79,63 @@ export default function Home() {
     .filter((data): data is NonNullable<typeof data> => data !== null);
 
   return (
-    <main className="min-h-screen p-4 md:p-8 max-w-7xl mx-auto space-y-8">
+    <main className="container mx-auto px-4 py-8">
       {/* エラー表示 */}
-      <ErrorDisplay />
+      {(prefectureError || populationError) && (
+        <div className="mb-4">
+          <ErrorDisplay />
+        </div>
+      )}
 
       {/* ヘッダー */}
-      <header className="space-y-2">
+      <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold text-gray-900">都道府県別人口推移グラフ</h1>
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-600">
-            都道府県を選択すると、人口推移グラフが表示されます。複数の都道府県を選択して比較することができます。
-          </p>
-          <div className="flex items-center space-x-2">
-            {fetchTimeMs !== null && (
-              <span className="text-xs text-gray-500">
-                取得時間: {fetchTimeMs}ms {source === 'cache' ? '(キャッシュ)' : '(API)'}
-              </span>
-            )}
-            <button
-              onClick={clearCache}
-              className="px-3 py-1 text-xs text-gray-700 bg-white border border-gray-300 rounded hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-colors"
-            >
-              キャッシュクリア
-            </button>
-          </div>
+        <div className="flex items-center space-x-4">
+          <CacheIndicator
+            source={source}
+            fetchTimeMs={fetchTimeMs}
+            isLoading={isLoadingPopulation}
+          />
+          <button
+            onClick={clearCache}
+            className="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-colors"
+          >
+            キャッシュクリア
+          </button>
         </div>
-      </header>
-
-      {/* メインコンテンツ */}
-      <div className="grid gap-8">
-        {/* 都道府県選択 */}
-        <section className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">都道府県を選択</h2>
-          <div className="bg-white rounded-lg shadow-sm">
-            <PrefectureList
-              prefectures={prefectures}
-              selectedPrefCodes={selectedPrefCodes}
-              onPrefectureChange={handlePrefectureChange}
-              onSelectAll={selectAll}
-              onUnselectAll={unselectAll}
-              isLoading={isLoadingPrefectures}
-            />
-          </div>
-        </section>
-
-        {/* グラフ表示エリア */}
-        <section className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">人口推移グラフ</h2>
-          <div className="bg-white rounded-lg shadow-sm">
-            {populationError ? (
-              <ChartErrorFallback
-                message="人口データの取得に失敗しました"
-                onRetry={() => selectedPrefCodes.forEach(fetchPopulation)}
-              />
-            ) : isLoadingPopulation ? (
-              <ChartSkeleton
-                variant="loading"
-                lineCount={selectedPrefCodes.length || 1}
-              />
-            ) : selectedPopulationData.length > 0 ? (
-              <PopulationChart
-                prefectures={prefectures}
-                populationData={selectedPopulationData}
-              />
-            ) : (
-              <ChartSkeleton
-                variant="empty"
-                lineCount={1}
-              />
-            )}
-          </div>
-        </section>
       </div>
+
+      {/* 都道府県選択 */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-bold mb-4">都道府県を選択</h2>
+        <PrefectureList
+          prefectures={prefectures}
+          selectedPrefCodes={selectedPrefCodes}
+          onPrefectureChange={handlePrefectureChange}
+          onSelectAll={handleSelectAll}
+          onUnselectAll={unselectAll}
+          isLoading={isLoadingPrefectures}
+        />
+      </section>
+
+      {/* 人口グラフ */}
+      <section>
+        <h2 className="text-2xl font-bold mb-4">人口推移グラフ</h2>
+        {isLoadingPopulation ? (
+          <ChartSkeleton />
+        ) : populationError ? (
+          <ChartErrorFallback />
+        ) : selectedPopulationData.length > 0 ? (
+          <PopulationChart
+            prefectures={prefectures}
+            populationData={selectedPopulationData}
+          />
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            都道府県を選択してください
+          </div>
+        )}
+      </section>
     </main>
   );
 }

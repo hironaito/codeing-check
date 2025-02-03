@@ -2,6 +2,7 @@
 
 import { FC } from 'react';
 import { PrefectureSelector } from './PrefectureSelector';
+import { RegionSelector } from './RegionSelector';
 
 export interface Prefecture {
   prefCode: number;
@@ -54,7 +55,14 @@ export const PrefectureList: FC<PrefectureListProps> = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* 地域選択 */}
+      <RegionSelector
+        prefectures={prefectures}
+        selectedPrefCodes={selectedPrefCodes}
+        onPrefectureChange={onPrefectureChange}
+      />
+
       {/* 選択状態の表示と一括選択/解除ボタン */}
       <div className="flex items-center justify-between px-4 py-2 bg-gray-50 rounded-lg">
         <div className="text-sm text-gray-600">

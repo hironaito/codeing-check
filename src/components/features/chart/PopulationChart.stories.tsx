@@ -6,7 +6,17 @@ const meta = {
   component: PopulationChart,
   parameters: {
     layout: 'centered',
+    backgrounds: {
+      default: 'light',
+    },
   },
+  decorators: [
+    (Story) => (
+      <div style={{ width: '800px', height: '500px' }}>
+        <Story />
+      </div>
+    ),
+  ],
   tags: ['autodocs'],
 } satisfies Meta<typeof PopulationChart>;
 
@@ -57,12 +67,31 @@ const samplePopulationData = [
       ],
     },
   },
+  {
+    prefCode: 3,
+    data: {
+      boundaryYear: 2020,
+      data: [
+        {
+          label: '総人口',
+          data: [
+            { year: 1980, value: 1400000 },
+            { year: 1990, value: 1450000 },
+            { year: 2000, value: 1400000 },
+            { year: 2010, value: 1300000 },
+            { year: 2020, value: 1200000 },
+          ],
+        },
+      ],
+    },
+  },
 ];
 
 export const Default: Story = {
   args: {
     prefectures: samplePrefectures,
     populationData: samplePopulationData,
+    className: 'w-full h-full',
   },
 };
 
@@ -70,12 +99,14 @@ export const SinglePrefecture: Story = {
   args: {
     prefectures: [samplePrefectures[0]],
     populationData: [samplePopulationData[0]],
+    className: 'w-full h-full',
   },
 };
 
-export const CustomClassName: Story = {
+export const TwoPrefectures: Story = {
   args: {
-    ...Default.args,
-    className: 'bg-gray-100 p-4 rounded-lg',
+    prefectures: samplePrefectures.slice(0, 2),
+    populationData: samplePopulationData.slice(0, 2),
+    className: 'w-full h-full',
   },
 }; 

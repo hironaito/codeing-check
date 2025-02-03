@@ -56,13 +56,11 @@ describe('usePopulationData', () => {
   it('初期状態が正しいこと', () => {
     const { result } = renderHook(() => usePopulationData());
 
-    expect(result.current.data).toBeNull();
+    expect(result.current.data).toEqual(new Map());
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeNull();
-    expect(result.current.totalPopulation).toBeNull();
-    expect(result.current.youngPopulation).toBeNull();
-    expect(result.current.workingPopulation).toBeNull();
-    expect(result.current.elderlyPopulation).toBeNull();
+    expect(result.current.fetchTimeMs).toBeNull();
+    expect(result.current.source).toBeNull();
   });
 
   it('データ取得が成功した場合、正しく状態が更新されること', async () => {
@@ -77,13 +75,10 @@ describe('usePopulationData', () => {
 
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeNull();
-    expect(result.current.data).toEqual(mockPopulationData);
-    
-    // 各人口区分のデータが正しく抽出されていることを確認
-    expect(result.current.totalPopulation?.label).toBe('総人口');
-    expect(result.current.youngPopulation?.label).toBe('年少人口');
-    expect(result.current.workingPopulation?.label).toBe('生産年齢人口');
-    expect(result.current.elderlyPopulation?.label).toBe('老年人口');
+    const expectedData = new Map([[1, mockPopulationData]]);
+    expect(result.current.data).toEqual(expectedData);
+    expect(result.current.source).toBe('api');
+    expect(typeof result.current.fetchTimeMs).toBe('number');
   });
 
   it('データ取得が失敗した場合、エラー状態が設定されること', async () => {
@@ -99,11 +94,9 @@ describe('usePopulationData', () => {
 
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error?.message).toBe('API Error');
-    expect(result.current.data).toBeNull();
-    expect(result.current.totalPopulation).toBeNull();
-    expect(result.current.youngPopulation).toBeNull();
-    expect(result.current.workingPopulation).toBeNull();
-    expect(result.current.elderlyPopulation).toBeNull();
+    expect(result.current.data).toEqual(new Map());
+    expect(result.current.source).toBeNull();
+    expect(result.current.fetchTimeMs).toBeNull();
   });
 
   it('ローディング状態が正しく制御されること', async () => {
@@ -129,7 +122,8 @@ describe('usePopulationData', () => {
 
     // ローディング終了を確認
     expect(result.current.isLoading).toBe(false);
-    expect(result.current.data).toEqual(mockPopulationData);
+    const expectedData = new Map([[1, mockPopulationData]]);
+    expect(result.current.data).toEqual(expectedData);
   });
 
   it('キャッシュが正しく機能すること', async () => {
@@ -144,7 +138,9 @@ describe('usePopulationData', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledTimes(1);
-    expect(result.current.data).toEqual(mockPopulationData);
+    const expectedData = new Map([[1, mockPopulationData]]);
+    expect(result.current.data).toEqual(expectedData);
+    expect(result.current.source).toBe('api');
 
     // 2回目の呼び出し（キャッシュヒット）
     await act(async () => {
@@ -153,7 +149,7 @@ describe('usePopulationData', () => {
 
     // APIが呼び出されていないことを確認
     expect(mockFetch).toHaveBeenCalledTimes(1);
-    expect(result.current.data).toEqual(mockPopulationData);
+    expect(result.current.data).toEqual(expectedData);
   });
 
   it('キャッシュクリアが正しく機能すること', async () => {
@@ -167,14 +163,17 @@ describe('usePopulationData', () => {
       await result.current.fetchData(1);
     });
 
-    expect(result.current.data).toEqual(mockPopulationData);
+    const expectedData = new Map([[1, mockPopulationData]]);
+    expect(result.current.data).toEqual(expectedData);
 
     // キャッシュをクリア
     act(() => {
       result.current.clearCache();
     });
 
-    expect(result.current.data).toBeNull();
+    expect(result.current.data).toEqual(new Map());
+    expect(result.current.source).toBeNull();
+    expect(result.current.fetchTimeMs).toBeNull();
 
     // 再度データを取得（キャッシュミス）
     await act(async () => {
@@ -183,5 +182,7 @@ describe('usePopulationData', () => {
 
     // APIが再度呼び出されることを確認
     expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(result.current.data).toEqual(expectedData);
+    expect(result.current.source).toBe('api');
   });
 });
