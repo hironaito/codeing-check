@@ -96,7 +96,7 @@ export const usePopulationData = (): UsePopulationDataReturn => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [data]);
 
   return {
     data,

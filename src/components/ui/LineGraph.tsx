@@ -118,7 +118,6 @@ export const LineGraph: FC<LineGraphProps> = ({
   const legendIconSize = isMobile ? CHART_LEGEND_STYLE.iconSize.mobile : CHART_LEGEND_STYLE.iconSize.desktop;
   const dotRadius = isMobile ? CHART_DOT_STYLE.radius.mobile : CHART_DOT_STYLE.radius.desktop;
   const lineStrokeWidth = isMobile ? CHART_LINE_STYLE.strokeWidth.mobile : CHART_LINE_STYLE.strokeWidth.desktop;
-  const activeDotRadius = isMobile ? CHART_LINE_STYLE.activeDot.r.mobile : CHART_LINE_STYLE.activeDot.r.desktop;
 
   return (
     <div
@@ -206,12 +205,6 @@ export const LineGraph: FC<LineGraphProps> = ({
                 r: dotRadius.normal,
                 strokeWidth: CHART_DOT_STYLE.strokeWidth,
                 fill: CHART_DOT_STYLE.fill,
-                stroke: line.color || Object.values(CHART_COLORS)[index % Object.keys(CHART_COLORS).length],
-              }}
-              activeDot={{
-                r: dotRadius.active,
-                strokeWidth: CHART_LINE_STYLE.activeDot.strokeWidth,
-                fill: CHART_LINE_STYLE.activeDot.fill,
                 stroke: line.color || Object.values(CHART_COLORS)[index % Object.keys(CHART_COLORS).length],
               }}
               animationDuration={CHART_ANIMATION.duration}
