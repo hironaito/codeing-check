@@ -129,11 +129,12 @@ describe('Error Utilities', () => {
   });
 
   describe('persistError', () => {
-    const originalConsoleError = console.error;
     let consoleErrorMock: jest.SpyInstance;
 
     beforeEach(() => {
-      consoleErrorMock = jest.spyOn(console, 'error').mockImplementation();
+      consoleErrorMock = jest.spyOn(console, 'error').mockImplementation((...args) => {
+        console.log('✓ テスト用エラーログ:', ...args);
+      });
     });
 
     afterEach(() => {

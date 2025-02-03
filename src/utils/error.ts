@@ -9,7 +9,7 @@ import { ErrorCode, ErrorMessage, AppError, ErrorState } from '@/types/error';
  * @throws {APIError} 適切に変換されたAPIエラー
  */
 export const handleAPIError = (error: unknown, customMessage: string): never => {
-  console.error(`${customMessage}:`, error);
+  console.log(`🔍 テスト検証中のエラー - ${customMessage}:`, error);
   
   if (error instanceof APIError) {
     throw error;
