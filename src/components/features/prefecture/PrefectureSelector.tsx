@@ -42,8 +42,6 @@ export const PrefectureSelector: FC<PrefectureSelectorProps> = ({
       htmlFor={`prefecture-${prefecture.prefCode}`}
       onKeyDown={handleKeyDown}
       tabIndex={0}
-      role="checkbox"
-      aria-checked={isSelected}
     >
       <input
         type="checkbox"

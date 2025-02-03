@@ -67,7 +67,7 @@ export const RegionSelector: FC<RegionSelectorProps> = ({
                 )}
                 <span className="flex items-center justify-center gap-1">
                   <span className="truncate">{region}</span>
-                  <span className="text-xs text-gray-500 whitespace-nowrap">
+                  <span className={`text-xs whitespace-nowrap ${isAllSelected ? 'text-blue-700' : 'text-gray-700'}`}>
                     ({selectedCount}/{prefs.length})
                   </span>
                 </span>
