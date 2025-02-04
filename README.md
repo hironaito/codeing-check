@@ -93,6 +93,33 @@ src/
 └── utils/        # ユーティリティ関数
 ```
 
+## ドキュメント構成
+```
+docs/
+├── 01_requirements/    # 要件定義
+│   ├── README.md      # 要件概要
+│   └── evaluation-criteria.md  # 評価基準
+├── 02_project_management/  # プロジェクト管理
+│   └── ticket_management.md  # チケット管理方針
+├── 03_architecture/   # アーキテクチャ設計
+├── 04_api/           # API仕様
+├── 05_design/        # デザイン関連
+├── 06_development/   # 開発ガイドライン
+├── 07_testing/       # テスト方針
+└── 08_deployment/    # デプロイメント手順
+```
+
+各ドキュメントの概要：
+
+- **01_requirements/**: プロジェクトの要件定義、評価基準、制約条件
+- **02_project_management/**: プロジェクト管理、タスク管理、進捗報告
+- **03_architecture/**: システム設計、コンポーネント設計、状態管理設計
+- **04_api/**: API仕様、エンドポイント定義、データ型定義
+- **05_design/**: UIデザイン、ワイヤーフレーム、デザインシステム
+- **06_development/**: 開発ガイドライン、コーディング規約、ベストプラクティス
+- **07_testing/**: テスト方針、テストケース、カバレッジ要件
+- **08_deployment/**: デプロイメントフロー、環境設定、監視設定
+
 ## コンポーネントドキュメント
 
 各コンポーネントの詳細な使用方法とデモは、Storybookで確認できます：
