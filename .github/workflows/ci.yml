@@ -79,11 +79,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Audit URLs using Lighthouse
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v10
         with:
           urls: |
             https://codeing-check-c4y4.vercel.app/
-          uploadArtifacts: true
+          configPath: './.github/workflows/lighthouse-config.json'
+          uploadArtifacts: false
           temporaryPublicStorage: true
-          artifactName: lighthouse_results 
+          runs: 3
+
+      - name: Store Lighthouse results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: lighthouse-report-${{ github.sha }}
+          path: '.lighthouseci'
+          retention-days: 7 
