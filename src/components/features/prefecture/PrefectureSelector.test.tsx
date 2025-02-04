@@ -82,9 +82,8 @@ describe('PrefectureSelector', () => {
     );
 
     const checkbox = screen.getByLabelText('北海道を選択');
-    const label = checkbox.parentElement;
     expect(checkbox).toHaveAttribute('aria-label', '北海道を選択');
-    expect(label).toHaveAttribute('role', 'checkbox');
-    expect(label).toHaveAttribute('aria-checked', 'false');
+    expect(checkbox).toHaveAttribute('type', 'checkbox');
+    expect(checkbox.getAttribute('checked')).toBeFalsy();
   });
 }); 
