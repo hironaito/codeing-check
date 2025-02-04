@@ -72,18 +72,18 @@ jobs:
         run: npm ci
 
       - name: Run npm audit
-        run: npm audit
+        run: npm audit 
 
   lighthouse:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Audit URLs using Lighthouse
         uses: treosh/lighthouse-ci-action@v10
         with:
           urls: |
             https://codeing-check-c4y4.vercel.app/
           uploadArtifacts: true
-          temporaryPublicStorage: true 
+          temporaryPublicStorage: true
+          artifactName: lighthouse_results 
