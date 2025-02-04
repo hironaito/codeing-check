@@ -15,11 +15,13 @@ export const usePrefectureData = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [source, setSource] = useState<'cache' | 'api' | null>(null);
+  const [fetchTimeMs, setFetchTimeMs] = useState<number | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
+      const startTime = performance.now();
 
       // キャッシュをチェック
       const cachedData = localStorage.getItem(CACHE_KEY);
@@ -30,6 +32,7 @@ export const usePrefectureData = () => {
         if (isValid) {
           setData(prefectures);
           setSource('cache');
+          setFetchTimeMs(Math.round(performance.now() - startTime));
           return 'cache';
         }
       }
@@ -46,6 +49,7 @@ export const usePrefectureData = () => {
       
       setData(prefectures);
       setSource('api');
+      setFetchTimeMs(Math.round(performance.now() - startTime));
       return 'api';
     } catch (err) {
       const error = err instanceof Error ? err : new Error('予期せぬエラーが発生しました');
@@ -60,6 +64,7 @@ export const usePrefectureData = () => {
     localStorage.removeItem(CACHE_KEY);
     setData([]);
     setSource(null);
+    setFetchTimeMs(null);
   }, []);
 
   return {
@@ -69,5 +74,6 @@ export const usePrefectureData = () => {
     fetchData,
     clearCache,
     source,
+    fetchTimeMs,
   };
 }; 
