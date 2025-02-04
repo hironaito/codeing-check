@@ -19,10 +19,10 @@ export const Population3DChart: FC<Population3DChartProps> = ({
   className = '',
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [rotation, setRotation] = useState(0);
+  const [rotation, setRotation] = useState(0.5);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
-  const [elevation, setElevation] = useState(0.3);
+  const [elevation, setElevation] = useState(0.4);
   const [startY, setStartY] = useState(0);
 
   // データの整形
@@ -122,7 +122,22 @@ export const Population3DChart: FC<Population3DChartProps> = ({
       ctx.stroke();
     }
 
-    // データの描画
+    // データの描画準備
+    type Bar3D = {
+      prefecture: string;
+      points: {
+        front: { x: number; y: number; z: number }[];
+        top: { x: number; y: number; z: number }[];
+        side: { x: number; y: number; z: number }[];
+        shadow: { x: number; y: number; z: number }[];
+      };
+      color: string;
+      zIndex: number;
+    };
+
+    const bars: Bar3D[] = [];
+
+    // データの座標計算
     chartData.forEach((prefecture, prefIndex) => {
       prefecture.values.forEach((value, valueIndex) => {
         const totalPrefectures = chartData.length;
@@ -135,74 +150,101 @@ export const Population3DChart: FC<Population3DChartProps> = ({
 
         const color = Object.values(CHART_COLORS)[prefIndex % Object.keys(CHART_COLORS).length];
         
-        // 影の描画
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-        const shadowPoints = [
-          to3D(x - barWidth/2, 0, z + barDepth),
-          to3D(x + barWidth/2, 0, z + barDepth),
-          to3D(x + barWidth/2, 0, z),
-          to3D(x - barWidth/2, 0, z),
-        ];
-        ctx.beginPath();
-        ctx.moveTo(shadowPoints[0].x, shadowPoints[0].y);
-        shadowPoints.forEach(point => ctx.lineTo(point.x, point.y));
-        ctx.closePath();
-        ctx.fill();
-
-        // 棒の前面
+        // 各面の座標を計算
         const frontPoints = [
           to3D(x - barWidth/2, y, z),
           to3D(x + barWidth/2, y, z),
           to3D(x + barWidth/2, 0, z),
           to3D(x - barWidth/2, 0, z),
         ];
-        
+
+        const topPoints = [
+          to3D(x - barWidth/2, y, z),
+          to3D(x + barWidth/2, y, z),
+          to3D(x + barWidth/2, y, z + barDepth),
+          to3D(x - barWidth/2, y, z + barDepth),
+        ];
+
+        const sidePoints = [
+          to3D(x + barWidth/2, y, z),
+          to3D(x + barWidth/2, 0, z),
+          to3D(x + barWidth/2, 0, z + barDepth),
+          to3D(x + barWidth/2, y, z + barDepth),
+        ];
+
+        const shadowPoints = [
+          to3D(x - barWidth/2, 0, z + barDepth),
+          to3D(x + barWidth/2, 0, z + barDepth),
+          to3D(x + barWidth/2, 0, z),
+          to3D(x - barWidth/2, 0, z),
+        ];
+
+        // Z-indexの計算（奥行きの平均値）
+        const zIndex = frontPoints.reduce((acc, point) => acc + point.z, 0) / frontPoints.length;
+
+        bars.push({
+          prefecture: prefecture.name,
+          points: {
+            front: frontPoints,
+            top: topPoints,
+            side: sidePoints,
+            shadow: shadowPoints,
+          },
+          color,
+          zIndex,
+        });
+      });
+    });
+
+    // Z-indexでソートして奥から手前に描画
+    bars.sort((a, b) => b.zIndex - a.zIndex);
+
+    // バーの描画
+    bars.forEach(bar => {
+      // 影の描画
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.beginPath();
+      ctx.moveTo(bar.points.shadow[0].x, bar.points.shadow[0].y);
+      bar.points.shadow.forEach(point => ctx.lineTo(point.x, point.y));
+      ctx.closePath();
+      ctx.fill();
+
+      // 側面の描画
+      if (rotation > 0) {
         ctx.beginPath();
-        ctx.moveTo(frontPoints[0].x, frontPoints[0].y);
-        frontPoints.forEach(point => ctx.lineTo(point.x, point.y));
+        ctx.moveTo(bar.points.side[0].x, bar.points.side[0].y);
+        bar.points.side.forEach(point => ctx.lineTo(point.x, point.y));
         ctx.closePath();
-        ctx.fillStyle = color;
+        ctx.fillStyle = darkenColor(bar.color, 20);
         ctx.fill();
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 1;
         ctx.stroke();
+      }
 
-        // 棒の上面
-        if (rotation > 0) {
-          const topPoints = [
-            to3D(x - barWidth/2, y, z),
-            to3D(x + barWidth/2, y, z),
-            to3D(x + barWidth/2, y, z + barDepth),
-            to3D(x - barWidth/2, y, z + barDepth),
-          ];
-          
-          ctx.beginPath();
-          ctx.moveTo(topPoints[0].x, topPoints[0].y);
-          topPoints.forEach(point => ctx.lineTo(point.x, point.y));
-          ctx.closePath();
-          ctx.fillStyle = lightenColor(color, 20);
-          ctx.fill();
-          ctx.stroke();
-        }
-        
-        // 棒の側面
-        if (rotation > 0) {
-          const sidePoints = [
-            to3D(x + barWidth/2, y, z),
-            to3D(x + barWidth/2, 0, z),
-            to3D(x + barWidth/2, 0, z + barDepth),
-            to3D(x + barWidth/2, y, z + barDepth),
-          ];
-          
-          ctx.beginPath();
-          ctx.moveTo(sidePoints[0].x, sidePoints[0].y);
-          sidePoints.forEach(point => ctx.lineTo(point.x, point.y));
-          ctx.closePath();
-          ctx.fillStyle = darkenColor(color, 20);
-          ctx.fill();
-          ctx.stroke();
-        }
-      });
+      // 上面の描画
+      if (rotation > 0) {
+        ctx.beginPath();
+        ctx.moveTo(bar.points.top[0].x, bar.points.top[0].y);
+        bar.points.top.forEach(point => ctx.lineTo(point.x, point.y));
+        ctx.closePath();
+        ctx.fillStyle = lightenColor(bar.color, 20);
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      // 前面の描画
+      ctx.beginPath();
+      ctx.moveTo(bar.points.front[0].x, bar.points.front[0].y);
+      bar.points.front.forEach(point => ctx.lineTo(point.x, point.y));
+      ctx.closePath();
+      ctx.fillStyle = bar.color;
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1;
+      ctx.stroke();
     });
 
     // 軸ラベルの描画
