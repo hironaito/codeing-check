@@ -50,22 +50,7 @@ cp .env.example .env
 npm run dev
 ```
 
-### テストの実行
-```bash
-# ユニットテスト
-npm run test
-
-# テストカバレッジの確認
-npm run test:coverage
-
-# E2Eテスト
-npm run test:e2e
-
-# Storybookの起動
-npm run storybook
-```
-
-### リンターとフォーマッター
+### 開発コマンド
 ```bash
 # リンターの実行
 npm run lint
@@ -77,7 +62,21 @@ npm run format
 npm run type-check
 ```
 
+### テストの実行
+```bash
+# ユニットテスト
+npm run test
+
+# テストカバレッジの確認
+npm run test:coverage
+
+# E2Eテスト
+npm run test:e2e
+```
+
 ## プロジェクト構成
+
+### ソースコード
 ```
 src/
 ├── app/          # Next.js App Router
@@ -93,7 +92,7 @@ src/
 └── utils/        # ユーティリティ関数
 ```
 
-## ドキュメント構成
+### ドキュメント
 ```
 docs/
 ├── 01_requirements/    # 要件定義
@@ -103,22 +102,14 @@ docs/
 │   └── ticket_management.md  # チケット管理方針
 ├── 03_architecture/   # アーキテクチャ設計
 ├── 04_api/           # API仕様
-├── 05_design/        # デザイン関連
 ├── 06_development/   # 開発ガイドライン
+│   ├── coding-standards.md # コーディング規約
+│   └── best-practices.md   # 開発ベストプラクティス
 ├── 07_testing/       # テスト方針
+│   └── test-strategy.md    # テスト戦略
 └── 08_deployment/    # デプロイメント手順
+    └── deployment-guide.md  # デプロイメントガイド
 ```
-
-各ドキュメントの概要：
-
-- **01_requirements/**: プロジェクトの要件定義、評価基準、制約条件
-- **02_project_management/**: プロジェクト管理、タスク管理、進捗報告
-- **03_architecture/**: システム設計、コンポーネント設計、状態管理設計
-- **04_api/**: API仕様、エンドポイント定義、データ型定義
-- **05_design/**: UIデザイン、ワイヤーフレーム、デザインシステム
-- **06_development/**: 開発ガイドライン、コーディング規約、ベストプラクティス
-- **07_testing/**: テスト方針、テストケース、カバレッジ要件
-- **08_deployment/**: デプロイメントフロー、環境設定、監視設定
 
 ## コンポーネントドキュメント
 

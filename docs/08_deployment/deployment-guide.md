@@ -13,16 +13,6 @@
 
 ## 環境構成
 
-### 開発環境 (Development)
-- URL: https://dev-codeing-check.vercel.app
-- ブランチ: develop
-- 自動デプロイ: プルリクエストごと
-
-### ステージング環境 (Staging)
-- URL: https://staging-codeing-check.vercel.app
-- ブランチ: staging
-- 自動デプロイ: developブランチへのマージ時
-
 ### 本番環境 (Production)
 - URL: https://codeing-check-c4y4.vercel.app
 - ブランチ: main
