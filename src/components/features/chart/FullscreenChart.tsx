@@ -4,8 +4,6 @@ import { FC, useState } from 'react';
 import { Maximize2 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { PopulationChart, PopulationChartProps } from './PopulationChart';
-import type { Prefecture } from '@/types/api/prefecture';
-import type { PrefecturePopulation } from '@/types/api/population';
 
 export type FullscreenChartProps = PopulationChartProps;
 

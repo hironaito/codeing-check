@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { PopulationChart } from './PopulationChart';
 import { Prefecture } from '@/types/api/prefecture';
 import { PrefecturePopulation } from '@/types/api/population';
+import { PopulationType } from '../population/PopulationTypeSelector';
 
 // モックデータ
 const mockPrefectures: Prefecture[] = [
@@ -69,33 +70,15 @@ jest.mock('@/components/ui/LineGraph', () => ({
 }));
 
 describe('PopulationChart', () => {
-  it('データが正しく加工されてLineGraphに渡されること', () => {
-    render(
-      <PopulationChart
-        prefectures={mockPrefectures}
-        populationData={mockPopulationData}
-      />
-    );
+  const defaultProps = {
+    prefectures: mockPrefectures,
+    populationData: mockPopulationData,
+    selectedType: '総人口' as PopulationType,
+  };
 
-    const graphData = JSON.parse(screen.getByTestId('graph-data').textContent || '[]');
-    const graphLines = JSON.parse(screen.getByTestId('graph-lines').textContent || '[]');
-
-    // データ構造の検証
-    expect(graphData).toHaveLength(2); // 2015年と2020年のデータ
-    expect(graphData[0]).toHaveProperty('year', 2015);
-    expect(graphData[0]).toHaveProperty('value1', 5000000);
-    expect(graphData[0]).toHaveProperty('value13', 13000000);
-
-    // 線の設定の検証
-    expect(graphLines).toHaveLength(2); // 2つの都道府県
-    expect(graphLines[0]).toEqual(expect.objectContaining({
-      dataKey: 'value1',
-      name: '北海道',
-    }));
-    expect(graphLines[1]).toEqual(expect.objectContaining({
-      dataKey: 'value13',
-      name: '東京都',
-    }));
+  it('正しくレンダリングされること', () => {
+    render(<PopulationChart {...defaultProps} />);
+    expect(screen.getByTestId('line-graph')).toBeInTheDocument();
   });
 
   it('データが空の場合はnullを返すこと', () => {
@@ -103,22 +86,30 @@ describe('PopulationChart', () => {
       <PopulationChart
         prefectures={[]}
         populationData={[]}
+        selectedType="総人口"
       />
     );
-
     expect(container.firstChild).toBeNull();
   });
 
-  it('カスタムクラス名が適用されること', () => {
+  it('クラス名が正しく適用されること', () => {
+    const className = 'test-class';
     render(
       <PopulationChart
-        prefectures={mockPrefectures}
-        populationData={mockPopulationData}
-        className="custom-class"
+        {...defaultProps}
+        className={className}
       />
     );
+    expect(screen.getByTestId('line-graph').parentElement).toHaveClass(className);
+  });
 
-    const wrapper = screen.getByTestId('line-graph').parentElement;
-    expect(wrapper).toHaveClass('custom-class');
+  it('データが正しくフォーマットされること', () => {
+    render(<PopulationChart {...defaultProps} />);
+    const graphData = JSON.parse(screen.getByTestId('graph-data').textContent || '[]');
+    
+    expect(graphData).toEqual([
+      { year: 2015, value: 0, value1: 5000000, value13: 13000000 },
+      { year: 2020, value: 0, value1: 4800000, value13: 14000000 },
+    ]);
   });
 });

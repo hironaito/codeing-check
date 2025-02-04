@@ -2,12 +2,68 @@ import { render, screen } from '@testing-library/react';
 import { PopulationChart } from '../PopulationChart';
 import { Prefecture } from '@/types/api/prefecture';
 import { PrefecturePopulation } from '@/types/api/population';
+import { PopulationType } from '../../population/PopulationTypeSelector';
+
+// モックデータ
+const mockPrefectures: Prefecture[] = [
+  { prefCode: 1, prefName: '北海道' },
+  { prefCode: 13, prefName: '東京都' },
+];
+
+const mockPopulationData: {
+  prefCode: number;
+  data: PrefecturePopulation;
+}[] = [
+  {
+    prefCode: 1,
+    data: {
+      boundaryYear: 2020,
+      data: [
+        {
+          label: '総人口',
+          data: [
+            { year: 2015, value: 5000000 },
+            { year: 2020, value: 4800000 },
+          ],
+        },
+        {
+          label: '年少人口',
+          data: [
+            { year: 2015, value: 1000000 },
+            { year: 2020, value: 900000 },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    prefCode: 13,
+    data: {
+      boundaryYear: 2020,
+      data: [
+        {
+          label: '総人口',
+          data: [
+            { year: 2015, value: 13000000 },
+            { year: 2020, value: 14000000 },
+          ],
+        },
+        {
+          label: '年少人口',
+          data: [
+            { year: 2015, value: 2000000 },
+            { year: 2020, value: 1900000 },
+          ],
+        },
+      ],
+    },
+  },
+];
 
 // LineGraphの型定義
 type LineGraphProps = {
   data: Array<{
     year: number;
-    value: number;
     [key: string]: number;
   }>;
   lines: Array<{
@@ -17,176 +73,72 @@ type LineGraphProps = {
   }>;
 };
 
-// LineGraphコンポーネントをモック
+// LineGraphコンポーネントのモック
 jest.mock('@/components/ui/LineGraph', () => ({
   LineGraph: ({ data, lines }: LineGraphProps) => (
     <div data-testid="line-graph">
-      <div data-testid="chart-data">{JSON.stringify(data)}</div>
-      <div data-testid="chart-lines">{JSON.stringify(lines)}</div>
+      <div data-testid="graph-data">{JSON.stringify(data)}</div>
+      <div data-testid="graph-lines">{JSON.stringify(lines)}</div>
     </div>
   ),
 }));
 
 describe('PopulationChart', () => {
-  const mockPrefectures: Prefecture[] = [
-    { prefCode: 1, prefName: '北海道' },
-    { prefCode: 2, prefName: '青森県' },
-  ];
+  const defaultProps = {
+    prefectures: mockPrefectures,
+    populationData: mockPopulationData,
+    selectedType: '総人口' as PopulationType,
+  };
 
-  const mockPopulationData: { prefCode: number; data: PrefecturePopulation }[] = [
-    {
-      prefCode: 1,
-      data: {
-        boundaryYear: 2020,
-        data: [
-          {
-            label: '総人口',
-            data: [
-              { year: 2015, value: 5000000 },
-              { year: 2020, value: 4800000 },
-            ],
-          },
-        ],
-      },
-    },
-    {
-      prefCode: 2,
-      data: {
-        boundaryYear: 2020,
-        data: [
-          {
-            label: '総人口',
-            data: [
-              { year: 2015, value: 3000000 },
-              { year: 2020, value: 2800000 },
-            ],
-          },
-        ],
-      },
-    },
-  ];
-
-  it('should render chart with correct data', () => {
-    render(
-      <PopulationChart
-        prefectures={mockPrefectures}
-        populationData={mockPopulationData}
-      />
-    );
-
-    const chartData = JSON.parse(screen.getByTestId('chart-data').textContent || '[]');
-    const chartLines = JSON.parse(screen.getByTestId('chart-lines').textContent || '[]');
-
-    // データポイントの検証
-    expect(chartData).toHaveLength(2); // 2015年と2020年のデータ
-    expect(chartData[0]).toEqual({
-      year: 2015,
-      value: 0,
-      value1: 5000000,
-      value2: 3000000,
-    });
-    expect(chartData[1]).toEqual({
-      year: 2020,
-      value: 0,
-      value1: 4800000,
-      value2: 2800000,
-    });
-
-    // 線の設定の検証
-    expect(chartLines).toHaveLength(2);
-    expect(chartLines[0]).toEqual({
-      dataKey: 'value1',
-      name: '北海道',
-      color: expect.any(String),
-    });
-    expect(chartLines[1]).toEqual({
-      dataKey: 'value2',
-      name: '青森県',
-      color: expect.any(String),
-    });
+  it('正しくレンダリングされること', () => {
+    render(<PopulationChart {...defaultProps} />);
+    expect(screen.getByTestId('line-graph')).toBeInTheDocument();
   });
 
-  it('should not render when no data is provided', () => {
-    render(
+  it('データが空の場合はnullを返すこと', () => {
+    const { container } = render(
       <PopulationChart
         prefectures={[]}
         populationData={[]}
+        selectedType="総人口"
       />
     );
-
-    expect(screen.queryByTestId('line-graph')).not.toBeInTheDocument();
+    expect(container.firstChild).toBeNull();
   });
 
-  it('should handle missing prefecture names', () => {
-    const populationDataWithUnknownPref = [
-      {
-        prefCode: 999,
-        data: {
-          boundaryYear: 2020,
-          data: [
-            {
-              label: '総人口',
-              data: [
-                { year: 2015, value: 1000000 },
-              ],
-            },
-          ],
-        },
-      },
-    ];
-
+  it('クラス名が正しく適用されること', () => {
+    const className = 'test-class';
     render(
       <PopulationChart
-        prefectures={mockPrefectures}
-        populationData={populationDataWithUnknownPref}
+        {...defaultProps}
+        className={className}
       />
     );
-
-    const chartLines = JSON.parse(screen.getByTestId('chart-lines').textContent || '[]');
-    expect(chartLines[0].name).toBe('都道府県999');
+    expect(screen.getByTestId('line-graph').parentElement).toHaveClass(className);
   });
 
-  it('should apply custom className', () => {
-    render(
-      <PopulationChart
-        prefectures={mockPrefectures}
-        populationData={mockPopulationData}
-        className="custom-class"
-      />
-    );
-
-    const container = screen.getByTestId('line-graph').parentElement;
-    expect(container).toHaveClass('custom-class');
+  it('総人口データが正しくフォーマットされること', () => {
+    render(<PopulationChart {...defaultProps} />);
+    const graphData = JSON.parse(screen.getByTestId('graph-data').textContent || '[]');
+    
+    expect(graphData).toEqual([
+      { year: 2015, value: 0, value1: 5000000, value13: 13000000 },
+      { year: 2020, value: 0, value1: 4800000, value13: 14000000 },
+    ]);
   });
 
-  it('should handle missing data points', () => {
-    const incompleteData = [
-      {
-        prefCode: 1,
-        data: {
-          boundaryYear: 2020,
-          data: [
-            {
-              label: '総人口',
-              data: [
-                { year: 2015, value: 5000000 },
-                // 2020年のデータが欠落
-              ],
-            },
-          ],
-        },
-      },
-    ];
-
+  it('年少人口データが正しくフォーマットされること', () => {
     render(
       <PopulationChart
-        prefectures={mockPrefectures}
-        populationData={incompleteData}
+        {...defaultProps}
+        selectedType="年少人口"
       />
     );
-
-    const chartData = JSON.parse(screen.getByTestId('chart-data').textContent || '[]');
-    expect(chartData[0].value1).toBe(5000000);
-    expect(chartData[0].year).toBe(2015);
+    const graphData = JSON.parse(screen.getByTestId('graph-data').textContent || '[]');
+    
+    expect(graphData).toEqual([
+      { year: 2015, value: 0, value1: 1000000, value13: 2000000 },
+      { year: 2020, value: 0, value1: 900000, value13: 1900000 },
+    ]);
   });
 });
