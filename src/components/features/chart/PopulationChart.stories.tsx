@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { PopulationChart } from './PopulationChart';
-import { PopulationType } from '../population/PopulationTypeSelector';
 
 const meta = {
   title: 'Features/Chart/PopulationChart',
