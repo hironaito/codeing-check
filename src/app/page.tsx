@@ -126,7 +126,10 @@ export default function Home() {
             isLoading={isLoadingPopulation}
           />
           <button
-            onClick={clearCache}
+            onClick={() => {
+              clearCache();
+              unselectAll();
+            }}
             className="shrink-0 h-8 px-3 text-sm text-gray-700 bg-white border border-gray-300 rounded hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-colors"
           >
             キャッシュクリア
