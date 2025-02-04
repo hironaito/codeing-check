@@ -5,6 +5,7 @@ import { LineGraph, DataPoint } from '@/components/ui/LineGraph';
 import { PrefecturePopulation } from '@/types/api/population';
 import { Prefecture } from '@/types/api/prefecture';
 import { CHART_COLORS } from '@/constants/chart';
+import { PopulationType } from '../population/PopulationTypeSelector';
 
 export interface PopulationChartProps {
   prefectures: Prefecture[];
@@ -12,19 +13,24 @@ export interface PopulationChartProps {
     prefCode: number;
     data: PrefecturePopulation;
   }[];
+  selectedType: PopulationType;
   className?: string;
 }
 
 export const PopulationChart: FC<PopulationChartProps> = ({
   prefectures,
   populationData,
+  selectedType,
   className = '',
 }) => {
   const chartData = useMemo(() => {
     // 全ての年のユニークなリストを作成
     const years = new Set<number>();
     populationData.forEach(({ data }) => {
-      data.data[0].data.forEach(({ year }) => years.add(year));
+      const populationTypeData = data.data.find(d => d.label === selectedType);
+      if (populationTypeData) {
+        populationTypeData.data.forEach(({ year }) => years.add(year));
+      }
     });
 
     // 年ごとのデータを作成
@@ -35,13 +41,14 @@ export const PopulationChart: FC<PopulationChartProps> = ({
       };
       
       populationData.forEach(({ prefCode, data }) => {
-        const totalPopulation = data.data[0].data.find(d => d.year === year);
-        yearData[`value${prefCode}`] = totalPopulation?.value ?? 0;
+        const populationTypeData = data.data.find(d => d.label === selectedType);
+        const yearPopulation = populationTypeData?.data.find(d => d.year === year);
+        yearData[`value${prefCode}`] = yearPopulation?.value ?? 0;
       });
 
       return yearData as DataPoint;
     });
-  }, [populationData]);
+  }, [populationData, selectedType]);
 
   const lines = useMemo(() => {
     return populationData.map((p, index) => {
@@ -64,7 +71,7 @@ export const PopulationChart: FC<PopulationChartProps> = ({
         data={chartData}
         lines={lines}
         xAxisLabel="年度"
-        yAxisLabel="人口数"
+        yAxisLabel={`${selectedType}（人）`}
         tooltipFormatter={(value) => `${value.toLocaleString()}人`}
       />
     </div>

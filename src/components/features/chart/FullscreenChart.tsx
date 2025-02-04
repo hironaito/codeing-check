@@ -3,22 +3,16 @@
 import { FC, useState } from 'react';
 import { Maximize2 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
-import { PopulationChart } from './PopulationChart';
+import { PopulationChart, PopulationChartProps } from './PopulationChart';
 import type { Prefecture } from '@/types/api/prefecture';
 import type { PrefecturePopulation } from '@/types/api/population';
 
-interface FullscreenChartProps {
-  prefectures: Prefecture[];
-  populationData: {
-    prefCode: number;
-    data: PrefecturePopulation;
-  }[];
-  className?: string;
-}
+export type FullscreenChartProps = PopulationChartProps;
 
 export const FullscreenChart: FC<FullscreenChartProps> = ({
   prefectures,
   populationData,
+  selectedType,
   className = '',
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,6 +24,7 @@ export const FullscreenChart: FC<FullscreenChartProps> = ({
         <PopulationChart
           prefectures={prefectures}
           populationData={populationData}
+          selectedType={selectedType}
         />
       </div>
 
@@ -52,6 +47,7 @@ export const FullscreenChart: FC<FullscreenChartProps> = ({
           <PopulationChart
             prefectures={prefectures}
             populationData={populationData}
+            selectedType={selectedType}
             className="h-full"
           />
         </div>
