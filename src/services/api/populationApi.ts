@@ -42,7 +42,6 @@ export const getPopulation = async (prefCode: number): Promise<PopulationRespons
     };
 
     const response = await apiClient.get<PopulationResponse>(API_ENDPOINTS.POPULATION.COMPOSITION, config);
-    console.log('Population API Response:', response);
     
     if (!response.data) {
       throw new Error('レスポンスデータが存在しません');
@@ -50,7 +49,6 @@ export const getPopulation = async (prefCode: number): Promise<PopulationRespons
     
     // レスポンスのバリデーション
     const validatedData = populationResponseSchema.parse(response.data);
-    console.log('Validated Population Data:', validatedData);
     
     return validatedData.result;
   } catch (error) {

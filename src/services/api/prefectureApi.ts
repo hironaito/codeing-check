@@ -30,7 +30,6 @@ export const getPrefectures = async (): Promise<Prefecture[]> => {
     };
 
     const response = await apiClient.get<PrefecturesResponse>(API_ENDPOINTS.PREFECTURES, config);
-    console.log('API Response:', response);
     
     if (!response.data) {
       throw new Error('レスポンスデータが存在しません');
@@ -38,7 +37,6 @@ export const getPrefectures = async (): Promise<Prefecture[]> => {
     
     // レスポンスのバリデーション
     const validatedData = prefecturesResponseSchema.parse(response.data);
-    console.log('Validated Data:', validatedData);
     
     return validatedData.result;
   } catch (error) {

@@ -50,7 +50,6 @@ export default function TestPage() {
       setPrefFetchTime(null);
       setPopFetchTime(null);
       setDataSource(null);
-      console.log('全てのキャッシュをクリアしました');
     } catch (err) {
       console.error('キャッシュのクリアに失敗しました:', err);
     }
