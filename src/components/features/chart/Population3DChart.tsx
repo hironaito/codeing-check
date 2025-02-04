@@ -1,7 +1,7 @@
 'use client';
 
 import { FC, useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { PrefecturePopulation, PopulationResponse, PopulationComposition } from '@/types/api/population';
+import { PopulationResponse, PopulationComposition } from '@/types/api/population';
 import { Prefecture } from '@/types/api/prefecture';
 import { CHART_COLORS } from '@/constants/chart';
 
@@ -239,12 +239,23 @@ export const Population3DChart: FC<Population3DChartProps> = ({
     });
   }, [chartData, rotation, elevation, lightenColor, darkenColor, selectedType]);
 
+  // マウス位置の更新関数
+  const updateMousePosition = useCallback((clientX: number, clientY: number) => {
+    setStartX(clientX);
+    setStartY(clientY);
+  }, []);
+
+  // 回転と仰角の更新関数
+  const updateRotationAndElevation = useCallback((dx: number, dy: number) => {
+    setRotation(prev => prev + dx * 0.01);
+    setElevation(prev => Math.max(0, Math.min(Math.PI / 2, prev + dy * 0.01)));
+  }, []);
+
   // マウスイベントハンドラー
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     setIsDragging(true);
-    setStartX(e.clientX);
-    setStartY(e.clientY);
-  }, []);
+    updateMousePosition(e.clientX, e.clientY);
+  }, [updateMousePosition]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!isDragging) return;
@@ -252,12 +263,9 @@ export const Population3DChart: FC<Population3DChartProps> = ({
     const dx = e.clientX - startX;
     const dy = e.clientY - startY;
     
-    setRotation(prev => prev + dx * 0.01);
-    setElevation(prev => Math.max(0, Math.min(Math.PI / 2, prev + dy * 0.01)));
-    
-    setStartX(e.clientX);
-    setStartY(e.clientY);
-  }, [isDragging, startX, startY]);
+    updateRotationAndElevation(dx, dy);
+    updateMousePosition(e.clientX, e.clientY);
+  }, [isDragging, startX, startY, updateRotationAndElevation, updateMousePosition]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
