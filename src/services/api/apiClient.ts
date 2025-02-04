@@ -126,13 +126,6 @@ const retryRequest = async (error: AxiosError): Promise<void> => {
 // リクエストインターセプター
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    console.log('API Request:', {
-      method: config.method,
-      url: config.url,
-      params: config.params,
-      headers: config.headers,
-    });
-
     // キャッシュの確認（GETリクエストのみ）
     if (config.method?.toLowerCase() === 'get' && (config as ExtendedRequestConfig).cache !== false) {
       const cacheKey = generateCacheKey(config);
@@ -140,7 +133,6 @@ apiClient.interceptors.request.use(
       const ttl = ((config as ExtendedRequestConfig).cache as CacheConfig)?.ttl || API_CONFIG.CACHE.DEFAULT_TTL;
 
       if (cached && isCacheValid(cached, ttl)) {
-        console.log('Cache Hit:', cacheKey);
         return Promise.reject({
           config,
           response: { data: cached.data },
@@ -174,7 +166,6 @@ apiClient.interceptors.response.use(
         data: response.data,
         timestamp: Date.now(),
       });
-      console.log('Cache Set:', cacheKey);
     }
     return response;
   },
@@ -184,7 +175,7 @@ apiClient.interceptors.response.use(
       return error.response as AxiosResponse;
     }
 
-    console.log('API Error:', {
+    console.error('API Error:', {
       status: error.response?.status,
       message: error.response?.data?.message,
       config: error.config,

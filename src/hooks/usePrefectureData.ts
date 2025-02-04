@@ -28,7 +28,6 @@ export const usePrefectureData = () => {
         const isValid = Date.now() - timestamp < CACHE_DURATION;
         
         if (isValid) {
-          console.log('都道府県一覧: キャッシュからデータを取得しました');
           setData(prefectures);
           setSource('cache');
           return 'cache';
@@ -45,7 +44,6 @@ export const usePrefectureData = () => {
       };
       localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
       
-      console.log('都道府県一覧: APIからデータを取得しました');
       setData(prefectures);
       setSource('api');
       return 'api';

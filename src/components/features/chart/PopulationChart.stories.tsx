@@ -46,6 +46,36 @@ const samplePopulationData = [
             { year: 2020, value: 5200000 },
           ],
         },
+        {
+          label: '年少人口',
+          data: [
+            { year: 1980, value: 1300000 },
+            { year: 1990, value: 1100000 },
+            { year: 2000, value: 900000 },
+            { year: 2010, value: 700000 },
+            { year: 2020, value: 500000 },
+          ],
+        },
+        {
+          label: '生産年齢人口',
+          data: [
+            { year: 1980, value: 3600000 },
+            { year: 1990, value: 3800000 },
+            { year: 2000, value: 3700000 },
+            { year: 2010, value: 3500000 },
+            { year: 2020, value: 3200000 },
+          ],
+        },
+        {
+          label: '老年人口',
+          data: [
+            { year: 1980, value: 600000 },
+            { year: 1990, value: 800000 },
+            { year: 2000, value: 1000000 },
+            { year: 2010, value: 1200000 },
+            { year: 2020, value: 1500000 },
+          ],
+        },
       ],
     },
   },
@@ -64,22 +94,34 @@ const samplePopulationData = [
             { year: 2020, value: 1300000 },
           ],
         },
-      ],
-    },
-  },
-  {
-    prefCode: 3,
-    data: {
-      boundaryYear: 2020,
-      data: [
         {
-          label: '総人口',
+          label: '年少人口',
           data: [
-            { year: 1980, value: 1400000 },
-            { year: 1990, value: 1450000 },
-            { year: 2000, value: 1400000 },
-            { year: 2010, value: 1300000 },
-            { year: 2020, value: 1200000 },
+            { year: 1980, value: 400000 },
+            { year: 1990, value: 350000 },
+            { year: 2000, value: 300000 },
+            { year: 2010, value: 250000 },
+            { year: 2020, value: 200000 },
+          ],
+        },
+        {
+          label: '生産年齢人口',
+          data: [
+            { year: 1980, value: 900000 },
+            { year: 1990, value: 950000 },
+            { year: 2000, value: 900000 },
+            { year: 2010, value: 850000 },
+            { year: 2020, value: 750000 },
+          ],
+        },
+        {
+          label: '老年人口',
+          data: [
+            { year: 1980, value: 200000 },
+            { year: 1990, value: 300000 },
+            { year: 2000, value: 350000 },
+            { year: 2010, value: 350000 },
+            { year: 2020, value: 350000 },
           ],
         },
       ],
@@ -87,26 +129,43 @@ const samplePopulationData = [
   },
 ];
 
+// ストーリー
 export const Default: Story = {
   args: {
     prefectures: samplePrefectures,
     populationData: samplePopulationData,
-    className: 'w-full h-full',
+    selectedType: '総人口',
   },
 };
 
-export const SinglePrefecture: Story = {
+export const YouthPopulation: Story = {
   args: {
-    prefectures: [samplePrefectures[0]],
-    populationData: [samplePopulationData[0]],
-    className: 'w-full h-full',
+    prefectures: samplePrefectures,
+    populationData: samplePopulationData,
+    selectedType: '年少人口',
   },
 };
 
-export const TwoPrefectures: Story = {
+export const WorkingAgePopulation: Story = {
   args: {
-    prefectures: samplePrefectures.slice(0, 2),
-    populationData: samplePopulationData.slice(0, 2),
-    className: 'w-full h-full',
+    prefectures: samplePrefectures,
+    populationData: samplePopulationData,
+    selectedType: '生産年齢人口',
+  },
+};
+
+export const ElderlyPopulation: Story = {
+  args: {
+    prefectures: samplePrefectures,
+    populationData: samplePopulationData,
+    selectedType: '老年人口',
+  },
+};
+
+export const Empty: Story = {
+  args: {
+    prefectures: [],
+    populationData: [],
+    selectedType: '総人口',
   },
 }; 
